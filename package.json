@@ -1,0 +1,13 @@
+{
+  "name": "kelime-avi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kelime Avı: Türkiye'nin tarihî yerlerinde geçen harf birleştirme bulmaca oyunu",
+  "type": "module",
+  "scripts": {
+    "levels": "node tools/generate-levels.mjs",
+    "scenes": "node tools/build-scenes.mjs",
+    "build": "node tools/build.mjs",
+    "test": "node tools/test-e2e.mjs"
+  }
+}
