@@ -8,6 +8,12 @@ Oyun mantığı **Words of Wonders (WOW) – Kelime Oyunu** uygulamasıyla aynı
 - **Duraklar:** Kapadokya · Efes Antik Kenti · Ayasofya · Pamukkale · Nemrut Dağı · Galata Kulesi · Sümela Manastırı · Göbeklitepe
 - **Ana ekran:** Kız Kulesi
 
+## İndir (Android)
+
+**[kelime-avi.apk dosyasını indir](https://github.com/sblackice/Kelime-oyunu/releases/latest/download/kelime-avi.apk)** · [Tüm sürümler](https://github.com/sblackice/Kelime-oyunu/releases)
+
+APK her güncellemede GitHub Actions tarafından otomatik derlenir (`.github/workflows/android.yml`). Bu bir test sürümüdür ve test imza anahtarıyla imzalanmıştır; Google Play için ayrı, gizli bir anahtar gerekir.
+
 ## Nasıl oynanır?
 
 1. `dist/kelime-avi.html` dosyasını telefonun veya bilgisayarın tarayıcısında aç. Tek bir dosyadır, kurulum gerekmez.
