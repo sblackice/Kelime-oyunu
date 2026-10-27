@@ -1,0 +1,56 @@
+name: Android APK
+
+on:
+  push:
+    branches: [claude/confident-meitner-vsw0sr, main]
+    paths: ['src/**', 'tools/**', 'android/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Oyunu derle
+        run: |
+          node tools/generate-levels.mjs > /dev/null
+          node tools/build-scenes.mjs
+          node tools/build.mjs
+          mkdir -p android/app/src/main/assets
+          cp dist/kelime-avi.html android/app/src/main/assets/index.html
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: APK oluştur
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease -PversionCode=${{ github.run_number }}
+          cp app/build/outputs/apk/release/app-release.apk ../kelime-avi.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kelime-avi-apk
+          path: kelime-avi.apk
+
+      - name: İndirme sayfasına (Release) ekle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v0.1.${{ github.run_number }}"
+          gh release create "$TAG" kelime-avi.apk \
+            --target "${{ github.sha }}" \
+            --title "Kelime Avı $TAG" \
+            --latest \
+            --notes "Android için test sürümü. Kurulum: kelime-avi.apk dosyasını indir, aç ve 'Bilinmeyen uygulamaları yükle' iznini bu kez ver."

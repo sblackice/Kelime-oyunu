@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.kelimeavi.oyun'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.kelimeavi.oyun'
+        minSdk 26
+        targetSdk 34
+        versionCode((project.findProperty('versionCode') ?: '1').toString().toInteger())
+        versionName '0.1.' + (project.findProperty('versionCode') ?: '1')
+    }
+
+    // Yalnızca test dağıtımı için imza anahtarı. Google Play'e yüklemeden önce
+    // gizli tutulan ayrı bir anahtar oluşturulmalıdır.
+    signingConfigs {
+        test {
+            storeFile file('kelime-avi-test.keystore')
+            storePassword 'kelimeavi-test'
+            keyAlias 'kelimeavi'
+            keyPassword 'kelimeavi-test'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.test
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+}
