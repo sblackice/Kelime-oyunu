@@ -70,6 +70,9 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--altin)
   box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.16);
 }
 .pill svg { width: 28px; height: 28px; flex: none; }
+button.pill { border: 0; padding-right: 5px; }
+.pill i { width: 24px; height: 24px; margin-left: 2px; border-radius: 50%; display: grid; place-items: center; background: var(--yesil); font: 900 18px/1 var(--font-body); font-style: normal; }
+.lvl-label { position: absolute; left: 50%; transform: translateX(-50%); color: #fff; font: 800 17px/1 var(--font-display); letter-spacing: 0.08em; text-shadow: 0 2px 6px rgba(8, 10, 40, 0.55); white-space: nowrap; }
 .pill.bump { animation: bump 0.45s ease; }
 .icon-btn {
   width: 40px; height: 40px; border-radius: 50%; border: 0; display: grid; place-items: center;
@@ -118,7 +121,13 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--altin)
   animation: ring 2.4s ease-out infinite;
 }
 .journey.zoom-out { transform: scale(0.06); opacity: 0; }
-.home .btn-green { margin: 26px 0 auto; }
+.home .btn-green { margin: 26px 0 0; }
+.tier-chip {
+  margin: 16px 0 auto; padding: 9px 18px 8px; border: 0; border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: var(--glass); color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
+}
+.tier-chip b { font: 800 15px/1 var(--font-display); letter-spacing: 0.08em; color: var(--altin); }
+.tier-chip span { font: 800 14px/1 var(--font-body); }
 
 .btn-green {
   min-width: 230px; height: 62px; padding: 0 30px; border: 0; border-radius: 999px;
@@ -179,6 +188,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--altin)
 .preview.show { opacity: 1; }
 .preview.shake { animation: shake 0.42s ease; }
 .preview.launch { background: transparent; }
+.preview.bonus { background: var(--altin); color: var(--ink); }
 .preview.launch span { visibility: hidden; }
 
 .praise {
@@ -310,6 +320,44 @@ button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--altin)
 .mini-card small { display: block; font: 700 12px/1.2 var(--font-body); color: var(--muted); margin-top: 2px; }
 .stats { display: flex; justify-content: center; gap: 18px; margin: 0 0 14px; font: 800 15px/1.2 var(--font-body); color: #4b4f68; }
 .stats b { color: var(--cini); font-size: 20px; display: block; }
+
+/* ---------- seviyeler penceresi ---------- */
+.map { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.map-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 2px 6px; }
+.map-head b { font: 800 15px/1 var(--font-display); letter-spacing: 0.08em; color: var(--cini); }
+.map-head small { font: 700 12px/1 var(--font-body); color: var(--muted); }
+.map-row { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 12px; background: #fff; box-shadow: 0 2px 6px rgba(8, 10, 30, 0.1); margin-bottom: 7px; }
+.map-row.now { box-shadow: 0 0 0 2.5px var(--altin), 0 2px 6px rgba(8, 10, 30, 0.1); }
+.map-thumb { width: 44px; height: 44px; flex: none; border-radius: 9px; background-size: cover; background-position: center 62%; display: grid; place-items: center; color: #fff; }
+.map-thumb svg { width: 20px; height: 20px; }
+.map-row.locked .map-thumb { filter: grayscale(1) brightness(0.6); }
+.map-row.locked .map-meta, .map-row.locked .map-num { opacity: 0.55; }
+.map-meta { flex: 1; min-width: 0; }
+.map-meta b { display: block; font: 800 15px/1.15 var(--font-body); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.map-meta small { display: block; font: 700 12px/1.2 var(--font-body); color: var(--muted); margin: 1px 0 5px; }
+.map-bar { height: 6px; border-radius: 999px; background: #eadfca; overflow: hidden; }
+.map-bar i { display: block; height: 100%; background: var(--yesil); border-radius: 999px; }
+.map-num { font: 800 14px/1 var(--font-body); color: var(--cini-dark); font-variant-numeric: tabular-nums; }
+
+/* ---------- elmas penceresi ve reklamlar ---------- */
+.ways { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.ways li { padding: 9px 12px; border-radius: 12px; background: #fff; font: 700 14px/1.35 var(--font-body); color: #4b4f68; }
+.ways b { display: block; color: var(--ink); font-weight: 800; }
+.ad-btn { display: flex; align-items: center; justify-content: center; gap: 9px; }
+.ad-btn svg { width: 24px; height: 24px; flex: none; }
+.ad-btn em { display: inline-flex; align-items: center; gap: 3px; padding: 5px 9px 4px 5px; border-radius: 999px; background: rgba(8, 14, 48, 0.35); font: 800 15px/1 var(--font-body); font-style: normal; }
+.ad-btn em svg { width: 18px; height: 18px; }
+.ad-btn:disabled { opacity: 0.6; }
+/* Reklam alanı önizlemesi (yalnızca ?reklam=demo) */
+.ad-demo { display: none; position: fixed; left: 0; right: 0; bottom: 0; height: 60px; z-index: 5; background: #0b0e24; border-top: 1px solid rgba(255, 255, 255, 0.14); color: #9aa0bd; align-items: center; justify-content: center; flex-direction: column; gap: 3px; font: 800 13px/1 var(--font-body); letter-spacing: 0.14em; }
+.ad-demo small { font: 700 11px/1 var(--font-body); letter-spacing: 0.04em; opacity: 0.75; }
+.ad-banner-on .ad-demo { display: flex; }
+.ad-banner-on .app { bottom: 60px; }
+.ad-full { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: #05060f; }
+.ad-full-box { width: min(340px, 100%); padding: 26px 20px; border-radius: 18px; background: #1b1f3d; color: #fff; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.ad-full-box small { font: 800 12px/1 var(--font-body); letter-spacing: 0.16em; color: var(--altin); }
+.ad-full-box b { font: 800 22px/1.2 var(--font-display); }
+.ad-full-box p { margin: 0 0 8px; font: 700 14px/1.4 var(--font-body); color: #b9bed8; }
 
 .toast {
   position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 64px); z-index: 70; transform: translateX(-50%);

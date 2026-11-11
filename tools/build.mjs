@@ -25,6 +25,21 @@ for (const f of readdirSync(sceneDir).filter((x) => x.endsWith('.svg')).sort()) 
 const scenesJs = `window.SCENES = ${JSON.stringify(scenes)};`;
 
 const FONTS = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@700;800;900&display=swap';
+
+// Tek dosyalık sürümde (ve Android uygulamasında) yazı tipleri dosyanın içine gömülür:
+// internet olmasa da oyun aynı görünür. Dosyalar src/fonts/ içindedir (SIL Open Font License 1.1).
+const LATIN = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
+const LATIN_EXT = 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
+const face = (family, file, weight, range) => {
+  const b64 = readFileSync(join(ROOT, 'src', 'fonts', file)).toString('base64');
+  return `@font-face{font-family:"${family}";font-style:normal;font-display:swap;font-weight:${weight};src:url(data:font/woff2;base64,${b64}) format("woff2");unicode-range:${range}}`;
+};
+const fontCss = [
+  face('Baloo 2', 'baloo-2-latin-ext-wght-normal.woff2', '400 800', LATIN_EXT),
+  face('Baloo 2', 'baloo-2-latin-wght-normal.woff2', '400 800', LATIN),
+  face('Nunito', 'nunito-latin-ext-wght-normal.woff2', '200 1000', LATIN_EXT),
+  face('Nunito', 'nunito-latin-wght-normal.woff2', '200 1000', LATIN),
+].join('\n');
 const favicon =
   'data:image/svg+xml,' +
   encodeURIComponent(
@@ -41,10 +56,8 @@ const standalone = `<!doctype html>
 <meta name="description" content="Kelime Avı: Türkiye'nin tarihî yerlerinde geçen, harfleri birleştirerek kelime bulduğun bulmaca oyunu.">
 <title>Kelime Avı</title>
 <link rel="icon" href="${favicon}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="${FONTS}">
 <style>
+${fontCss}
 ${css}
 </style>
 </head>

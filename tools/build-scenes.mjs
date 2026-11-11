@@ -491,7 +491,231 @@ function kizkulesi() {
   return svg(defs, b);
 }
 
-const SCENES = { kapadokya, efes, ayasofya, pamukkale, nemrut, galata, sumela, gobeklitepe, kizkulesi };
+// ---------- 10) Truva: tahta at ve surlar ----------
+function truva() {
+  const defs =
+    lin('sky', [[0, '#3f7fc4'], [0.45, '#8fc3e8'], [0.7, '#ffe2b0']]) +
+    rad('sun', [[0, '#fffbe6'], [0.4, '#fff1c2', 0.85], [1, '#ffe7a8', 0]]) +
+    lin('sea', [[0, '#3f8fb5'], [1, '#2a6f96']]) +
+    lin('wood', [[0, '#b9834f'], [1, '#8a5a33']]) +
+    lin('field', [[0, '#d9b45f'], [1, '#a9813a']]);
+  let b = `<rect width="400" height="800" fill="url(#sky)"/>`;
+  b += `<circle cx="80" cy="470" r="130" fill="url(#sun)"/><circle cx="80" cy="470" r="26" fill="#fffbe6"/>`;
+  b += cloud(300, 140, 1.2, '#fff', 0.7) + cloud(110, 240, 0.9, '#fff', 0.6) + cloud(330, 330, 0.7, '#fff', 0.55);
+  b += gull(250, 250, 1.1, '#3b4a66') + gull(282, 232, 0.8, '#3b4a66') + gull(150, 330, 0.9, '#3b4a66');
+  // Çanakkale Boğazı ve karşı kıyı (at çemberin arkasında kalmasın diye sahne yukarı alındı)
+  b += `<rect x="0" y="690" width="400" height="110" fill="#8f6b2c"/><g transform="translate(0 -80)">`;
+  b += ridge(560, 14, 21, '#7fa3c4', { op: 0.9 });
+  b += `<rect x="0" y="572" width="400" height="60" fill="url(#sea)"/>`;
+  for (let i = 0; i < 9; i++) b += `<path d="M${20 + i * 44} ${f(584 + (i % 3) * 9)} h22" stroke="#cfe8f3" stroke-width="1.6" stroke-linecap="round" opacity="0.6"/>`;
+  // antik surlar (eğimli taş duvar)
+  b += `<path d="M0 640 L0 612 L96 606 L120 640Z" fill="#c9b08a"/><path d="M0 612 L96 606 L102 614 L0 620Z" fill="#e0c9a2"/>`;
+  b += `<path d="M400 646 L400 600 L300 596 L276 646Z" fill="#bfa57f"/><path d="M400 600 L300 596 L294 604 L400 609Z" fill="#dcc49c"/>`;
+  const r = rng(77);
+  for (let i = 0; i < 26; i++) { const x = r() < 0.5 ? r() * 90 : 300 + r() * 95; b += `<rect x="${f(x)}" y="${f(616 + r() * 22)}" width="${f(8 + r() * 8)}" height="3.2" rx="1" fill="#8f7754" opacity="0.5"/>`; }
+  // zemin
+  b += `<path d="M0 632 C80 620 160 640 240 628 C310 618 360 632 400 626 L400 800 L0 800Z" fill="url(#field)"/>`;
+  // tahta at
+  const hx = 200, hb = 640;
+  let h = '';
+  // tekerlekli platform
+  h += `<rect x="${hx - 84}" y="${hb - 16}" width="168" height="10" rx="3" fill="#7a4f2c"/>`;
+  for (const wx of [hx - 62, hx + 62]) h += `<circle cx="${wx}" cy="${hb - 4}" r="13" fill="#6b4426"/><circle cx="${wx}" cy="${hb - 4}" r="8" fill="#a8743f"/><circle cx="${wx}" cy="${hb - 4}" r="2.5" fill="#4a2e18"/>`;
+  // bacaklar
+  for (const [lx, w] of [[hx - 58, 13], [hx - 30, 12], [hx + 24, 12], [hx + 50, 13]]) h += `<rect x="${lx}" y="${hb - 92}" width="${w}" height="78" fill="url(#wood)"/><rect x="${lx + w - 4}" y="${hb - 92}" width="4" height="78" fill="#6f4727" opacity="0.5"/>`;
+  // gövde (tahta kaplama)
+  h += `<path d="M${hx - 74} ${hb - 150} Q${hx - 80} ${hb - 96} ${hx - 60} ${hb - 88} L${hx + 62} ${hb - 88} Q${hx + 78} ${hb - 98} ${hx + 72} ${hb - 150} Q${hx} ${hb - 166} ${hx - 74} ${hb - 150}Z" fill="url(#wood)"/>`;
+  for (let i = 0; i < 5; i++) h += `<path d="M${hx - 72} ${hb - 140 + i * 11} Q${hx} ${hb - 152 + i * 11} ${hx + 71} ${hb - 140 + i * 11}" fill="none" stroke="#6f4727" stroke-width="1.4" opacity="0.6"/>`;
+  // sırttaki kulübe ve pencereler
+  h += `<rect x="${hx - 34}" y="${hb - 186}" width="62" height="34" fill="#a8743f"/><path d="M${hx - 40} ${hb - 186} L${hx - 3} ${hb - 206} L${hx + 34} ${hb - 186}Z" fill="#7a4f2c"/>`;
+  h += `<rect x="${hx - 24}" y="${hb - 178}" width="11" height="13" fill="#3d2815"/><rect x="${hx + 6}" y="${hb - 178}" width="11" height="13" fill="#3d2815"/>`;
+  h += `<rect x="${hx - 46}" y="${hb - 132}" width="12" height="13" fill="#3d2815"/><rect x="${hx - 6}" y="${hb - 134}" width="12" height="13" fill="#3d2815"/><rect x="${hx + 34}" y="${hb - 132}" width="12" height="13" fill="#3d2815"/>`;
+  // boyun, baş, yele
+  h += `<path d="M${hx + 46} ${hb - 150} L${hx + 78} ${hb - 232} L${hx + 108} ${hb - 226} L${hx + 76} ${hb - 138}Z" fill="url(#wood)"/>`;
+  h += `<path d="M${hx + 74} ${hb - 238} L${hx + 104} ${hb - 244} L${hx + 138} ${hb - 204} L${hx + 128} ${hb - 190} L${hx + 100} ${hb - 208} L${hx + 84} ${hb - 204}Z" fill="#b9834f"/>`;
+  h += `<path d="M${hx + 82} ${hb - 242} L${hx + 78} ${hb - 262} L${hx + 92} ${hb - 246}Z" fill="#8a5a33"/><path d="M${hx + 94} ${hb - 246} L${hx + 96} ${hb - 264} L${hx + 104} ${hb - 246}Z" fill="#8a5a33"/>`;
+  h += `<circle cx="${hx + 108}" cy="${hb - 226}" r="3" fill="#2e1c0e"/>`;
+  h += `<path d="M${hx + 50} ${hb - 156} L${hx + 78} ${hb - 236} L${hx + 68} ${hb - 232} L${hx + 40} ${hb - 156}Z" fill="#5f3d20"/>`;
+  // kuyruk
+  h += `<path d="M${hx - 72} ${hb - 146} Q${hx - 104} ${hb - 150} ${hx - 100} ${hb - 96} Q${hx - 92} ${hb - 124} ${hx - 70} ${hb - 128}Z" fill="#5f3d20"/>`;
+  b += `<ellipse cx="${hx}" cy="${hb + 8}" rx="110" ry="9" fill="#6b4f22" opacity="0.35"/>` + h;
+  // ön plan: zeytin ağaçları, otlar
+  b += `<path d="M0 716 C70 700 150 724 230 710 C300 698 360 716 400 706 L400 800 L0 800Z" fill="#8f6b2c" opacity="0.75"/>`;
+  b += bush(40, 712, 1.1, '#6f8246', '#86995a') + bush(366, 708, 1, '#6f8246', '#86995a') + bush(300, 730, 0.7, '#62753c', '#7a8d50');
+  for (let i = 0; i < 14; i++) b += grass(f(20 + i * 28 + r() * 10), f(730 + r() * 40), 1 + r() * 0.6, '#c9a64f');
+  b += '</g>';
+  return svg(defs, b);
+}
+
+// ---------- 11) Bodrum Kalesi: deniz kıyısında kale ve yelkenliler ----------
+function gulet(x, y, s, sail = '#fff') {
+  return `<g><path d="M${f(x - 26 * s)} ${f(y)} Q${f(x)} ${f(y + 12 * s)} ${f(x + 30 * s)} ${f(y - 2 * s)} L${f(x + 22 * s)} ${f(y + 8 * s)} L${f(x - 20 * s)} ${f(y + 8 * s)}Z" fill="#7a4a2a"/>` +
+    `<path d="M${f(x - 2 * s)} ${f(y)} L${f(x - 2 * s)} ${f(y - 44 * s)}" stroke="#5a3a22" stroke-width="${f(1.6 * s)}"/>` +
+    `<path d="M${f(x)} ${f(y - 42 * s)} L${f(x + 22 * s)} ${f(y - 4 * s)} L${f(x)} ${f(y - 4 * s)}Z" fill="${sail}"/><path d="M${f(x - 4 * s)} ${f(y - 38 * s)} L${f(x - 20 * s)} ${f(y - 4 * s)} L${f(x - 4 * s)} ${f(y - 4 * s)}Z" fill="${sail}" opacity="0.85"/></g>`;
+}
+function tower(x, base, w, h, c1, c2) {
+  let s = `<rect x="${x}" y="${base - h}" width="${w}" height="${h}" fill="${c1}"/><rect x="${f(x + w * 0.62)}" y="${base - h}" width="${f(w * 0.38)}" height="${h}" fill="${c2}"/>`;
+  const n = Math.max(3, Math.round(w / 9));
+  const mw = w / (n * 2 - 1);
+  for (let i = 0; i < n; i++) s += `<rect x="${f(x + i * mw * 2)}" y="${base - h - 7}" width="${f(mw)}" height="8" fill="${i >= n * 0.6 ? c2 : c1}"/>`;
+  s += `<rect x="${f(x + w * 0.42)}" y="${f(base - h * 0.7)}" width="4" height="10" rx="2" fill="#4b3a2c" opacity="0.8"/>`;
+  return s;
+}
+function bodrum() {
+  const defs =
+    lin('sky', [[0, '#2f8fd6'], [0.5, '#8fd0f0'], [0.72, '#e8f6fb']]) +
+    lin('sea', [[0, '#27b4c9'], [0.5, '#1b8fb5'], [1, '#156b98']]) +
+    lin('stone', [[0, '#e3cda3'], [1, '#bfa377']]);
+  let b = `<rect width="400" height="800" fill="url(#sky)"/>`;
+  b += `<circle cx="320" cy="120" r="34" fill="#fff8d6"/><circle cx="320" cy="120" r="60" fill="#fff8d6" opacity="0.25"/>`;
+  b += cloud(90, 170, 1.2, '#fff', 0.85) + cloud(250, 260, 0.9, '#fff', 0.75) + cloud(60, 330, 0.7, '#fff', 0.6);
+  b += gull(180, 210, 1.1, '#31506b') + gull(214, 196, 0.8, '#31506b') + gull(330, 300, 0.9, '#31506b');
+  // uzak yarımada (kale çemberin arkasında kalmasın diye sahne büyütülüp yukarı alındı)
+  b += `<g transform="translate(200 556) scale(1.3) translate(-200 -636)">`;
+  b += ridge(520, 26, 41, '#7fb0c9', { op: 0.85 });
+  b += ridge(545, 18, 44, '#6b9fb3');
+  // deniz
+  b += `<rect x="-60" y="556" width="520" height="420" fill="url(#sea)"/>`;
+  const r = rng(52);
+  for (let i = 0; i < 26; i++) b += `<path d="M${f(r() * 380)} ${f(566 + r() * 220)} h${f(14 + r() * 22)}" stroke="#e8fbff" stroke-width="1.5" stroke-linecap="round" opacity="${f(0.25 + r() * 0.4)}"/>`;
+  // kale: kayalık burun üzerinde
+  b += `<path d="M70 600 C90 560 150 548 210 548 C280 548 330 566 350 600 C300 612 130 614 70 600Z" fill="#9c8a66"/>`;
+  b += `<path d="M70 600 C130 590 300 590 350 600 C300 614 130 616 70 600Z" fill="#7d6d4f"/>`;
+  // dış surlar
+  b += `<path d="M96 578 L96 540 L324 540 L324 578Z" fill="url(#stone)"/>`;
+  for (let i = 0; i < 19; i++) b += `<rect x="${96 + i * 12.2}" y="533" width="7" height="8" fill="#e3cda3"/>`;
+  for (let i = 0; i < 30; i++) b += `<rect x="${f(100 + r() * 214)}" y="${f(546 + r() * 26)}" width="${f(6 + r() * 7)}" height="2.6" rx="1" fill="#a58c62" opacity="0.5"/>`;
+  // kuleler
+  b += tower(86, 580, 30, 74, '#e6d2a9', '#c2a87c');
+  b += tower(300, 580, 32, 66, '#e6d2a9', '#c2a87c');
+  b += tower(150, 544, 34, 86, '#ecd9b2', '#c9af84');
+  b += tower(206, 544, 28, 112, '#ecd9b2', '#c9af84');
+  b += tower(250, 544, 30, 70, '#e6d2a9', '#c2a87c');
+  // bayrak direği ve bayrak
+  b += `<path d="M220 432 L220 392" stroke="#6b5a40" stroke-width="2"/><path d="M220 393 L246 399 L220 407Z" fill="#e0533d"/>`;
+  // kale içi ağaçlar
+  b += cypress(128, 542, 44) + cypress(290, 542, 38) + bush(190, 540, 0.6, '#4f7d4a', '#62935b');
+  // yelkenliler
+  b += gulet(60, 650, 1.1) + gulet(336, 632, 0.8, '#fff7e6') + gulet(250, 700, 1.4) + gulet(130, 730, 0.9, '#fff7e6');
+  // ön plan: begonvilli beyaz ev köşesi
+  b += `<path d="M0 800 L0 708 L70 700 L70 800Z" fill="#fbfaf5"/><rect x="18" y="730" width="22" height="30" rx="2" fill="#2f6fb5"/><path d="M0 708 L70 700 L76 706 L0 716Z" fill="#e9e4d6"/>`;
+  for (let i = 0; i < 16; i++) b += `<circle cx="${f(40 + r() * 46)}" cy="${f(694 + r() * 34)}" r="${f(5 + r() * 5)}" fill="${r() < 0.5 ? '#d6336c' : '#e85a94'}" opacity="0.92"/>`;
+  for (let i = 0; i < 7; i++) b += `<circle cx="${f(44 + r() * 40)}" cy="${f(690 + r() * 30)}" r="${f(4 + r() * 3)}" fill="#3f7d4a" opacity="0.9"/>`;
+  b += '</g>';
+  return svg(defs, b);
+}
+
+// ---------- 12) Safranbolu: yamaçta Osmanlı evleri ----------
+function konak(x, base, w, h, seed) {
+  const r = rng(seed);
+  const up = h * 0.52;                      // çıkmalı üst kat
+  let s = `<rect x="${f(x + 3)}" y="${f(base - h + up)}" width="${f(w - 6)}" height="${f(h - up)}" fill="#e9e2d2"/>`;
+  s += `<rect x="${f(x + 3)}" y="${f(base - (h - up) * 0.45)}" width="${f(w - 6)}" height="${f((h - up) * 0.45)}" fill="#b9a98c"/>`;
+  s += `<rect x="${x}" y="${f(base - h)}" width="${w}" height="${f(up)}" fill="#fbf8f0"/>`;
+  s += `<rect x="${f(x + w * 0.66)}" y="${f(base - h)}" width="${f(w * 0.34)}" height="${f(up)}" fill="#e6dfcf"/>`;
+  // ahşap kuşaklar ve payandalar
+  s += `<rect x="${x}" y="${f(base - h + up - 3)}" width="${w}" height="3.4" fill="#6b4a30"/>`;
+  s += `<path d="M${f(x + 4)} ${f(base - h + up)} l-4 0 l4 9Z M${f(x + w - 4)} ${f(base - h + up)} l4 0 l-4 9Z" fill="#6b4a30"/>`;
+  // kırma çatı
+  s += `<path d="M${f(x - 6)} ${f(base - h)} L${f(x + w * 0.22)} ${f(base - h - w * 0.24)} L${f(x + w * 0.78)} ${f(base - h - w * 0.24)} L${f(x + w + 6)} ${f(base - h)}Z" fill="#b5553a"/>`;
+  s += `<path d="M${f(x + w * 0.6)} ${f(base - h - w * 0.24)} L${f(x + w * 0.78)} ${f(base - h - w * 0.24)} L${f(x + w + 6)} ${f(base - h)} L${f(x + w * 0.7)} ${f(base - h)}Z" fill="#96432d"/>`;
+  s += `<rect x="${f(x + w * 0.3)}" y="${f(base - h - w * 0.24 - 9)}" width="5" height="10" fill="#8a7a66"/>`;
+  // dar uzun pencereler
+  const n = Math.max(2, Math.floor(w / 11));
+  for (let i = 0; i < n; i++) {
+    const wx = x + 5 + (i * (w - 10)) / n;
+    s += `<rect x="${f(wx)}" y="${f(base - h + up * 0.3)}" width="5" height="${f(up * 0.42)}" fill="${r() < 0.4 ? '#ffd58a' : '#5b4636'}"/>`;
+  }
+  s += `<rect x="${f(x + w * 0.2)}" y="${f(base - (h - up) * 0.8)}" width="5" height="7" fill="#5b4636"/><rect x="${f(x + w * 0.58)}" y="${f(base - (h - up) * 0.62)}" width="7" height="${f((h - up) * 0.62)}" fill="#6b4a30"/>`;
+  return `<g>${s}</g>`;
+}
+function safranbolu() {
+  const defs =
+    lin('sky', [[0, '#f4a56b'], [0.35, '#f9c98d'], [0.62, '#fde9c4']]) +
+    rad('sun', [[0, '#fff6d8'], [0.4, '#ffe5ae', 0.85], [1, '#ffd89a', 0]]) +
+    lin('hill', [[0, '#7c9a5c'], [1, '#4f6f42']]);
+  let b = `<rect width="400" height="800" fill="url(#sky)"/>`;
+  b += `<circle cx="310" cy="300" r="140" fill="url(#sun)"/><circle cx="310" cy="300" r="28" fill="#fff6d8"/>`;
+  b += cloud(90, 130, 1.2, '#fff', 0.55) + cloud(250, 190, 0.8, '#fff', 0.45) + cloud(120, 280, 0.7, '#ffe9d0', 0.5);
+  b += gull(190, 240, 1, '#6b4a3a') + gull(220, 226, 0.8, '#6b4a3a');
+  b += ridge(430, 34, 61, '#c9a98a', { op: 0.75 });
+  b += ridge(470, 30, 64, '#9fae7c');
+  // yamaç
+  b += `<path d="M0 500 C80 468 150 492 220 476 C290 462 350 478 400 462 L400 800 L0 800Z" fill="url(#hill)"/>`;
+  // uzak cami ve minare
+  b += `<path d="M300 474 a22 20 0 0 1 44 0Z" fill="#d9d2c0"/><rect x="298" y="474" width="48" height="16" fill="#e6dfcf"/>` + `<rect x="352" y="424" width="6" height="66" fill="#efe9da"/><path d="M350 424 L355 404 L360 424Z" fill="#7b8a94"/><rect x="350" y="446" width="10" height="3" fill="#cfc7b4"/>`;
+  // evler: arkadan öne, küçükten büyüğe
+  const rows = [
+    [488, 0.62, [[8, 40], [56, 46], [112, 38], [158, 44], [212, 40], [262, 36]]],
+    [530, 0.8, [[-6, 48], [50, 54], [112, 46], [168, 56], [232, 48], [288, 54], [350, 50]]],
+    [584, 1, [[14, 62], [86, 56], [150, 66], [226, 58], [292, 64], [364, 56]]],
+    [648, 1.2, [[-14, 70], [66, 76], [152, 68], [230, 78], [318, 72]]],
+  ];
+  let seed = 300;
+  const r = rng(91);
+  rows.forEach(([base, k, hs], ri) => {
+    for (const [x, w] of hs) b += konak(x, base, w, f(w * (0.95 + r() * 0.25)), seed++);
+    if (ri < 3) {
+      b += `<path d="M0 ${base} C100 ${base - 8} 300 ${base + 6} 400 ${base - 4} L400 ${base + 16} L0 ${base + 16}Z" fill="#5f7d49" opacity="0.9"/>`;
+      for (let i = 0; i < 5; i++) b += bush(f(30 + i * 84 + r() * 30), base + 6, 0.5 * k, '#4f7340', '#68904f');
+      if (ri === 1) b += cypress(140, base + 4, 46) + cypress(338, base + 2, 40);
+    }
+  });
+  // ön plan: taş duvar ve arnavut kaldırımı
+  b += `<path d="M0 662 C120 652 280 668 400 656 L400 800 L0 800Z" fill="#8f8573"/>`;
+  for (let i = 0; i < 60; i++) b += `<ellipse cx="${f(r() * 400)}" cy="${f(676 + r() * 120)}" rx="${f(7 + r() * 7)}" ry="${f(3 + r() * 2.5)}" fill="${r() < 0.5 ? '#a39988' : '#7b7262'}" opacity="0.8"/>`;
+  b += bush(24, 676, 1, '#4f7340', '#68904f') + bush(378, 670, 1.1, '#4f7340', '#68904f');
+  return svg(defs, b);
+}
+
+// ---------- 13) İshak Paşa Sarayı: Ağrı Dağı önünde saray ----------
+function ishakpasa() {
+  const defs =
+    lin('sky', [[0, '#3b3f8f'], [0.38, '#8d6fb5'], [0.6, '#f29a8c'], [0.72, '#ffd3a3']]) +
+    rad('sun', [[0, '#fff0cf'], [0.4, '#ffd9a0', 0.8], [1, '#ffc98c', 0]]) +
+    lin('rock', [[0, '#b98a63'], [1, '#7d563d']]) +
+    lin('wall', [[0, '#f0d6a8'], [1, '#cfa873']]);
+  let b = `<rect width="400" height="800" fill="url(#sky)"/>`;
+  b += stars(40, 17, 240);
+  b += `<circle cx="86" cy="500" r="120" fill="url(#sun)"/><circle cx="86" cy="500" r="24" fill="#fff0cf"/>`;
+  b += cloud(300, 250, 1, '#ffe1d6', 0.4) + cloud(120, 320, 0.8, '#ffe9e0', 0.35);
+  // Ağrı Dağı (karlı zirve) ve Küçük Ağrı (saray çemberin arkasında kalmasın diye sahne büyütülüp yukarı alındı)
+  b += `<rect x="0" y="640" width="400" height="160" fill="#5f3f2e"/><g transform="translate(200 580) scale(1.2) translate(-200 -670)">`;
+  b += `<path d="M150 560 L262 372 Q272 358 284 372 L330 432 L400 512 L400 600 L0 600 L0 560Z" fill="#8e86b8"/>`;
+  b += `<path d="M262 372 Q272 358 284 372 L312 410 L296 404 L286 420 L272 398 L258 418 L250 394Z" fill="#fdfbff"/>`;
+  b += `<path d="M272 362 L284 372 L330 432 L400 512 L400 600 L300 600Z" fill="#6f679c" opacity="0.55"/>`;
+  b += `<path d="M0 560 L60 500 Q68 492 78 500 L140 560Z" fill="#9a8fc0" opacity="0.9"/><path d="M60 500 Q68 492 78 500 L86 510 L70 506 L56 512Z" fill="#f4f0fb"/>`;
+  b += ridge(566, 16, 81, '#a98fa8', { op: 0.9 });
+  // kayalık plato
+  b += `<path d="M0 640 L30 612 L92 600 L130 580 L290 580 L330 600 L384 612 L400 630 L400 800 L0 800Z" fill="url(#rock)"/>`;
+  b += `<path d="M130 580 L290 580 L330 600 L384 612 L400 630 L400 660 L300 640 L250 610 L150 606Z" fill="#6a4733" opacity="0.4"/>`;
+  // saray gövdesi
+  b += `<rect x="118" y="520" width="180" height="62" fill="url(#wall)"/><rect x="238" y="520" width="60" height="62" fill="#b98f5e" opacity="0.55"/>`;
+  for (let i = 0; i < 15; i++) b += `<rect x="${118 + i * 12.3}" y="514" width="7" height="7" fill="#f0d6a8"/>`;
+  // taç kapı
+  b += `<rect x="150" y="506" width="34" height="76" fill="#f4dcb0"/><path d="M156 582 L156 548 Q167 530 178 548 L178 582Z" fill="#5a3a2a"/><rect x="150" y="500" width="34" height="7" fill="#d9b684"/>`;
+  // pencereler
+  for (const wx of [128, 198, 214, 230, 262, 278]) b += `<path d="M${wx} 560 L${wx} 548 Q${wx + 4} 542 ${wx + 8} 548 L${wx + 8} 560Z" fill="#5a3a2a"/>`;
+  // kubbe (kasnaklı)
+  b += `<rect x="204" y="484" width="50" height="38" fill="#ecd2a2"/><rect x="236" y="484" width="18" height="38" fill="#c79f6b"/>`;
+  b += `<path d="M200 486 a29 30 0 0 1 58 0Z" fill="#e8c890"/><path d="M229 456 a29 30 0 0 1 29 30 L236 486 Q240 468 229 456Z" fill="#c2996a"/><path d="M229 456 L229 444" stroke="#8a6a44" stroke-width="2"/><circle cx="229" cy="442" r="3" fill="#f1b434"/>`;
+  for (const wx of [211, 224, 237]) b += `<rect x="${wx}" y="494" width="5" height="12" rx="2.5" fill="#5a3a2a"/>`;
+  // çizgili minare
+  b += `<rect x="270" y="410" width="14" height="112" fill="#f0d6a8"/>`;
+  for (let i = 0; i < 9; i++) b += `<rect x="270" y="${416 + i * 12}" width="14" height="5" fill="#b5553a" opacity="0.85"/>`;
+  b += `<rect x="266" y="436" width="22" height="5" fill="#d9b684"/><path d="M268 410 L277 382 L286 410Z" fill="#7b6a8f"/><path d="M277 382 L277 374" stroke="#8a6a44" stroke-width="1.6"/>`;
+  // yan kanat
+  b += `<rect x="92" y="540" width="30" height="44" fill="#e2c592"/><path d="M90 540 a16 14 0 0 1 32 0Z" fill="#d6b27e"/>`;
+  // ön plan kayalar ve bozkır otları
+  b += `<path d="M0 700 C60 684 130 706 200 694 C270 682 330 704 400 690 L400 800 L0 800Z" fill="#5f3f2e" opacity="0.85"/>`;
+  const r = rng(33);
+  for (let i = 0; i < 12; i++) b += grass(f(18 + i * 33 + r() * 12), f(716 + r() * 50), 1 + r() * 0.7, '#c99a58');
+  b += bush(48, 700, 0.8, '#7a6a3f', '#94834d') + bush(356, 696, 0.9, '#7a6a3f', '#94834d');
+  b += '</g>';
+  return svg(defs, b);
+}
+
+const SCENES = { kapadokya, efes, ayasofya, pamukkale, nemrut, galata, sumela, gobeklitepe, truva, bodrum, safranbolu, ishakpasa, kizkulesi };
 for (const [name, fn] of Object.entries(SCENES)) {
   const s = fn();
   writeFileSync(join(OUT, `${name}.svg`), s);

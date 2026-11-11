@@ -11,8 +11,16 @@
   const GIFT_EVERY = 8;       // 8 bölümde bir hediye kutusu (gözlenen çubuk)
   const GIFT_GEMS = 100;      // hediyenin içeriği WOW'da görülmedi; bu oyunun kendi tercihi
   const PRAISES = ['GÜZEL', 'SÜPER', 'HARİKA', 'MÜKEMMEL'];
+  const BONUS_GEMS = 5;       // bulmacada olmayan geçerli kelime (bonus kelime) ödülü
+  const TIER_GEMS = 250;      // bir seviyeyi (3 durak) bitirme ödülü
+  const REWARD_GEMS = 100;    // ödüllü reklam izleme ödülü (bir ipucu değerinde)
+  // Reklam düzeni (yalnızca Android uygulamasında ya da ?reklam=demo ile açılır)
+  const AD_FREE_LEVELS = 3;   // ilk 3 bölümde hiç reklam yok (oyuncu önce oyunu öğrensin)
+  const INTER_MIN_LEVEL = 6;  // tam ekran reklam en erken 6. bölümden sonra
+  const INTER_EVERY = 3;      // en sık 3 bölümde bir
+  const INTER_MIN_GAP = 120e3; // iki tam ekran reklam arasında en az 2 dakika
   const STORE_KEY = 'kelime-avi:v1';
-  const VERSION = '0.1';
+  const VERSION = '0.2';
 
   // ---------- yardımcılar ----------
   const $ = (s, el = document) => el.querySelector(s);
@@ -23,11 +31,12 @@
   const up = (s) => s.toLocaleUpperCase('tr-TR');
   const chars = (s) => Array.from(s);
   const sceneUrl = (id) => (window.SCENES && SCENES[id]) || '';
-  const locOf = (levelNo) => Math.floor((levelNo - 1) / LEVELS_PER_LOCATION);
+  const locOf = (levelNo) => Math.min(LOCATIONS.length - 1, Math.floor((levelNo - 1) / LEVELS_PER_LOCATION));
+  const tierOfLoc = (loc) => Math.max(0, TIERS.findIndex((t) => t.locs.includes(loc)));
 
   // ---------- durum ----------
   function defaultState() {
-    return { v: 1, level: 1, completed: 0, gems: START_GEMS, freeHints: 0, tut: {}, cards: [], sound: true, haptics: true, cur: null, updatedAt: 0 };
+    return { v: 1, level: 1, completed: 0, gems: START_GEMS, bonus: 0, freeHints: 0, tut: {}, cards: [], sound: true, haptics: true, cur: null, updatedAt: 0 };
   }
   function sanitize(d) {
     const s = defaultState();
@@ -36,6 +45,7 @@
     s.level = num(d.level, 1, 1, LEVELS.length + 1);
     s.completed = num(d.completed, 0, 0, 1e7);
     s.gems = num(d.gems, START_GEMS, 0, 1e7);
+    s.bonus = num(d.bonus, 0, 0, 1e7);
     s.freeHints = num(d.freeHints, 0, 0, 99);
     s.tut = d.tut && typeof d.tut === 'object' ? { ...d.tut } : {};
     s.cards = Array.isArray(d.cards) ? d.cards.filter((c) => LOCATIONS.some((l) => l.id === c)) : [];
@@ -46,7 +56,17 @@
     if (c && c.n === s.level && Array.isArray(c.found) && Array.isArray(c.rev) && Array.isArray(c.order)) {
       const L = LEVELS[s.level - 1];
       const okOrder = L && c.order.length === L.letters.length && c.order.every((i) => Number.isInteger(i) && i >= 0 && i < L.letters.length) && new Set(c.order).size === c.order.length;
-      if (okOrder) s.cur = { n: c.n, found: c.found.filter((w) => typeof w === 'string'), rev: c.rev.filter((k) => typeof k === 'string'), order: c.order.slice() };
+      // Bölümler güncellenmiş olabilir: kayıtlı kelimeler bu bölüme ait değilse yarım kalan bölüm baştan başlar
+      const okFound = L && c.found.every((w) => L.words.some((p) => p.w === w));
+      if (okOrder && okFound) {
+        s.cur = {
+          n: c.n,
+          found: [...new Set(c.found)],
+          rev: c.rev.filter((k) => typeof k === 'string' && /^\d+,\d+$/.test(k)),
+          order: c.order.slice(),
+          bonus: Array.isArray(c.bonus) ? [...new Set(c.bonus.filter((w) => (L.x || []).includes(w)))] : [],
+        };
+      }
     }
     return s;
   }
@@ -104,6 +124,82 @@
       }
     } catch (e) { cloudRef = null; }
   }
+
+  // ---------- reklamlar ----------
+  // Android uygulamasında gerçek reklamlar yerel (native) katmanda gösterilir; bu bölüm yalnızca
+  // "ne zaman" gösterileceğine karar verir. Tarayıcıda adresin sonuna ?reklam=demo eklenirse
+  // reklam yerleri gri kutularla gösterilir (tasarımı görmek ve otomatik test için).
+  const Ads = (() => {
+    const native = window.AndroidAds || null;
+    let demo = false;
+    try { demo = !native && /[?&]reklam=demo\b/.test(location.search); } catch (e) { /* yok say */ }
+    const enabled = !!native || demo;
+    let lastInter = Date.now();
+    let lastInterLevel = 0;
+    let waiting = null;          // tam ekran reklam kapanınca çözülecek söz (promise)
+    let bannerOn = false;
+    const log = [];              // test için: gösterilen reklamlar
+
+    function settle(value) { const w = waiting; waiting = null; if (w) { clearTimeout(w.timer); w.resolve(value); } }
+    function wait(ms) {
+      return new Promise((resolve) => { waiting = { resolve, timer: setTimeout(() => settle(false), ms) }; });
+    }
+    function demoOverlay(kind) {
+      return new Promise((resolve) => {
+        const el = document.createElement('div');
+        el.className = 'ad-full';
+        el.id = 'ad-full';
+        el.innerHTML = `<div class="ad-full-box"><small>REKLAM (deneme)</small><b>${kind === 'rewarded' ? 'Ödüllü video reklam' : 'Tam ekran reklam'}</b>
+          <p>Gerçek uygulamada burada Google reklamı görünür.</p><button class="btn-plain" id="ad-full-close">${kind === 'rewarded' ? 'Videoyu bitir' : 'Kapat'}</button></div>`;
+        document.body.appendChild(el);
+        el.querySelector('#ad-full-close').addEventListener('click', () => { el.remove(); resolve(true); });
+      });
+    }
+    function banner(show) {
+      show = !!show && enabled;
+      if (show === bannerOn) return;
+      bannerOn = show;
+      if (native) { try { native.setBanner(show); } catch (e) { /* yok say */ } }
+      else if (demo) { document.documentElement.classList.toggle('ad-banner-on', show); window.dispatchEvent(new Event('resize')); }
+    }
+    async function interstitial(completed) {
+      if (!enabled || completed < INTER_MIN_LEVEL) return false;
+      if (completed - lastInterLevel < INTER_EVERY || Date.now() - lastInter < INTER_MIN_GAP) return false;
+      let shown = false;
+      if (native) {
+        try { shown = !!native.showInterstitial(); } catch (e) { shown = false; }
+        if (shown) await wait(180e3);
+      } else { shown = true; await demoOverlay('interstitial'); }
+      if (shown) { lastInter = Date.now(); lastInterLevel = completed; log.push('interstitial@' + completed); }
+      return shown;
+    }
+    function rewardedReady() {
+      if (demo) return true;
+      try { return !!(native && native.isRewardedReady()); } catch (e) { return false; }
+    }
+    async function rewarded() {
+      if (!enabled) return false;
+      let earned = false;
+      if (native) {
+        let started = false;
+        try { started = !!native.showRewarded(); } catch (e) { started = false; }
+        if (started) earned = await wait(300e3);
+      } else earned = await demoOverlay('rewarded');
+      if (earned) { lastInter = Date.now(); log.push('rewarded'); }
+      return !!earned;
+    }
+    // Android katmanı bu işlevleri çağırır
+    window.__kelimeAviAds = {
+      onInterstitialClosed: () => settle(true),
+      onRewardedClosed: (earned) => settle(!!earned),
+    };
+    return {
+      enabled, demo, banner, interstitial, rewarded, rewardedReady, log,
+      privacyRequired: () => { try { return !!(native && native.isPrivacyOptionsRequired()); } catch (e) { return false; } },
+      showPrivacy: () => { try { native && native.showPrivacyOptions(); } catch (e) { /* yok say */ } },
+      testClock: (ms) => { lastInter -= ms; },
+    };
+  })();
 
   // ---------- ses (Web Audio ile üretilen, dosyasız efektler) ----------
   const Sound = (() => {
@@ -171,6 +267,7 @@
     }
     screen = name;
     $('#app').classList.toggle('dim-bg', name === 'complete' || name === 'end');
+    Ads.banner(name !== 'loading' && S.completed >= AD_FREE_LEVELS);
   }
 
   let bgFront = 'a', bgScene = '';
@@ -207,6 +304,11 @@
     updateGems(false);
     $('#home-count').textContent = String(S.completed);
     $('#btn-play').textContent = S.level <= LEVELS.length ? `BÖLÜM ${S.level}` : 'BAŞTAN OYNA';
+    const loc = locOf(S.level);
+    const tier = tierOfLoc(loc);
+    const done = S.level > LEVELS.length ? LEVELS_PER_LOCATION : (S.level - 1) % LEVELS_PER_LOCATION;
+    $('#home-tier-name').textContent = `SEVİYE ${tier + 1} · ${up(TIERS[tier].name)}`;
+    $('#home-tier-loc').textContent = `${LOCATIONS[loc].name} · ${done}/${LEVELS_PER_LOCATION}`;
     $('#home-journey').classList.remove('zoom-out');
   }
   function showHome() {
@@ -238,7 +340,9 @@
     hideTutorial();
     if (S.level > LEVELS.length) { showEnd(); return; }
     L = LEVELS[S.level - 1];
-    if (!S.cur || S.cur.n !== L.n) S.cur = { n: L.n, found: [], rev: [], order: L.letters.map((_, i) => i) };
+    if (!S.cur || S.cur.n !== L.n) S.cur = { n: L.n, found: [], rev: [], order: L.letters.map((_, i) => i), bonus: [] };
+    if (!Array.isArray(S.cur.bonus)) S.cur.bonus = [];
+    $('#lvl-label').textContent = `BÖLÜM ${L.n}`;
     if (L.n === 3 && !S.tut.hintGiven) { S.freeHints += FREE_TUTORIAL_HINTS; S.tut.hintGiven = true; }
     busy = false;
     sel = [];
@@ -462,12 +566,35 @@
     drawLines();
     if (chars(word).length < 2) { pv.classList.remove('show'); return; }
     const wi = words.findIndex((ws) => ws.w === word);
+    if (wi < 0 && (L.x || []).includes(word)) { bonusWord(word); return; }
     if (wi >= 0 && !words[wi].found) acceptWord(wi, rects);
     else if (wi >= 0) {
       pv.classList.remove('show');
       Sound.already();
       for (const k of words[wi].keys) { const el = cells.get(k).el; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
     } else rejectWord();
+  }
+
+  // Bulmacada yeri olmayan ama Türkçede var olan kelime: küçük bir elmas ödülü
+  function bonusWord(word) {
+    const pv = $('#preview');
+    if (S.cur.bonus.includes(word)) {
+      pv.classList.remove('show');
+      Sound.already();
+      toast('Bu bonus kelimeyi zaten buldun.');
+      return;
+    }
+    S.cur.bonus.push(word);
+    S.bonus += 1;
+    S.gems += BONUS_GEMS;
+    shownGems = S.gems;
+    updateGems(true);
+    save();
+    Sound.hint();
+    buzz(15);
+    pv.classList.add('bonus');
+    later(() => { if (!sel.length) pv.classList.remove('show'); pv.classList.remove('bonus'); }, T(650));
+    toast(`Bonus kelime: ${word}  +${BONUS_GEMS} elmas`);
   }
 
   function rejectWord() {
@@ -554,9 +681,9 @@
     if (S.freeHints > 0) S.freeHints -= 1;
     else if (S.gems >= HINT_COST) { S.gems -= HINT_COST; shownGems = S.gems; updateGems(true); }
     else {
-      toast('Yeterli elmasın yok. Bölüm bitirerek hediye kutusundan elmas kazanabilirsin.');
       const b = $('#btn-hint'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
       Sound.bad();
+      gemsModal(true);
       return;
     }
     // Önce tek kelimeye ait hücreler (WOW'da ipucu ortak hücreyi açmadı)
@@ -678,9 +805,15 @@
     if (giftNow) S.gems += GIFT_GEMS;
     const cardNow = locStep === LEVELS_PER_LOCATION && !S.cards.includes(LOCATIONS[loc].id);
     if (cardNow) S.cards.push(LOCATIONS[loc].id);
+    // Seviyenin son durağı ilk kez bittiyse seviye ödülü
+    const tier = tierOfLoc(loc);
+    const tierNow = cardNow && TIERS[tier].locs[TIERS[tier].locs.length - 1] === loc;
+    if (tierNow) S.gems += TIER_GEMS;
     save();
     busy = false;
-    await showComplete({ n, loc, locStep, prevCompleted, prevGems, giftNow, cardNow });
+    // Oyuncu bu sırada ana sayfaya döndüyse tebrik ekranını açma (ilerleme zaten kaydedildi)
+    if (screen !== 'game') { if (screen === 'home') renderHome(); return; }
+    await showComplete({ n, loc, locStep, prevCompleted, prevGems, giftNow, cardNow, tierNow, tier });
   }
 
   function setBar(fillId, textId, value, max) {
@@ -726,7 +859,7 @@
     if (info.giftNow) {
       const gi = $('#gift-icon'); gi.classList.remove('bounce'); void gi.offsetWidth; gi.classList.add('bounce');
       await giftModal();
-      shownGems = S.gems;
+      shownGems = info.prevGems + GIFT_GEMS;
       updateGems(true);
       fills[0].style.transition = 'none';
       setBar('#gift-fill', '#gift-text', 0, GIFT_EVERY);
@@ -742,22 +875,39 @@
       }
       if (!alive()) return;
     }
+    if (info.tierNow) {
+      await tierModal(info.tier);
+      if (!alive()) return;
+    }
+    shownGems = S.gems;
+    updateGems(false);
     btn.hidden = false;
     await wait(T(450)); if (!alive()) return;
     btn.textContent = S.level <= LEVELS.length ? `BÖLÜM ${S.level}` : 'DEVAM';
     btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse');
   }
 
+  let goingNext = false;
   async function goNext() {
-    Sound.click();
-    if (S.level > LEVELS.length) { showEnd(); return; }
-    $('#cmp-journey').classList.add('zoom-out');
-    await wait(T(420));
-    startLevel();
+    if (goingNext) return;
+    goingNext = true;
+    try {
+      Sound.click();
+      const run = completeRun;
+      // Bölüm arası tam ekran reklam (kurallar Ads.interstitial içinde)
+      await Ads.interstitial(S.completed);
+      if (run !== completeRun || screen !== 'complete') return;
+      if (S.level > LEVELS.length) { showEnd(); return; }
+      $('#cmp-journey').classList.add('zoom-out');
+      await wait(T(420));
+      if (run !== completeRun || screen !== 'complete') return;
+      startLevel();
+    } finally { goingNext = false; }
   }
 
   function showEnd() {
     clearLevelTimers();
+    $('#end-text').textContent = `${LOCATIONS.length} tarihî durağın ${LEVELS.length} bölümünü bitirdin. Yeni duraklar eklenene kadar bölümleri baştan oynayabilirsin.`;
     setBackground('kizkulesi');
     showScreen('end');
   }
@@ -766,6 +916,8 @@
   let modalResolve = null;
   function openModal(html, onBind) {
     const m = $('#modal');
+    // Açık bir pencere varsa onu bekleyen akış takılı kalmasın
+    if (modalResolve) { const prev = modalResolve; modalResolve = null; prev(); }
     m.innerHTML = `<div class="sheet">${html}</div>`;
     m.hidden = false;
     return new Promise((resolve) => {
@@ -792,6 +944,75 @@
        <svg class="gift-big" aria-hidden="true"><use href="#i-gift"/></svg>
        <div class="reward"><svg aria-hidden="true"><use href="#i-gem"/></svg>+${GIFT_GEMS}</div>
        <button class="btn-blue" data-close data-focus>AL</button>`
+    );
+  }
+
+  function tierModal(tier) {
+    Sound.gift();
+    const next = TIERS[tier + 1];
+    return openModal(
+      `<div class="eyebrow">SEVİYE ${tier + 1} TAMAM</div><h2>${TIERS[tier].name} seviyesini bitirdin!</h2>
+       <p>${next ? `Sıradaki seviye: <b>${next.name}</b> (${next.desc}).` : 'Bütün seviyeleri bitirdin. Harikasın!'}</p>
+       <div class="reward"><svg aria-hidden="true"><use href="#i-gem"/></svg>+${TIER_GEMS}</div>
+       <button class="btn-blue" data-close data-focus>DEVAM</button>`
+    );
+  }
+
+  // Seviyeler: hangi seviyede hangi duraklar var, nereye kadar gelindi
+  function mapModal() {
+    const curLoc = locOf(S.level);
+    const allDone = S.level > LEVELS.length;
+    const html = TIERS.map((t, ti) => {
+      const rows = t.locs.map((li) => {
+        const l = LOCATIONS[li];
+        const done = allDone || li < curLoc ? LEVELS_PER_LOCATION : li === curLoc ? (S.level - 1) % LEVELS_PER_LOCATION : 0;
+        const state = done >= LEVELS_PER_LOCATION ? 'done' : li === curLoc ? 'now' : 'locked';
+        const first = li * LEVELS_PER_LOCATION + 1;
+        return `<div class="map-row ${state}">
+          <div class="map-thumb" style="background-image:url(&quot;${sceneUrl(l.id)}&quot;)">${state === 'locked' ? '<svg aria-hidden="true"><use href="#i-lock"/></svg>' : ''}</div>
+          <div class="map-meta"><b>${l.name}</b><small>Bölüm ${first}–${first + LEVELS_PER_LOCATION - 1} · ${l.city}</small>
+            <div class="map-bar"><i style="width:${(done / LEVELS_PER_LOCATION) * 100}%"></i></div></div>
+          <div class="map-num">${done}/${LEVELS_PER_LOCATION}</div></div>`;
+      }).join('');
+      return `<div class="map-tier"><div class="map-head"><b>SEVİYE ${ti + 1} · ${up(t.name)}</b><small>${t.desc}</small></div>${rows}</div>`;
+    }).join('');
+    return openModal(`${closeBtn}<h2>Seviyeler</h2><div class="map">${html}</div>`);
+  }
+
+  // Elmas kazanma yolları (+ varsa ödüllü reklam)
+  function gemsModal(needHint) {
+    const adRow = Ads.enabled
+      ? `<button class="btn-blue ad-btn" id="gem-ad"><svg aria-hidden="true"><use href="#i-play"/></svg><span>REKLAM İZLE</span><em><svg aria-hidden="true"><use href="#i-gem"/></svg>+${REWARD_GEMS}</em></button>
+         <div class="small" id="gem-ad-note" hidden>Şu an gösterilecek reklam yok. Biraz sonra tekrar dene.</div>`
+      : '';
+    return openModal(
+      `${closeBtn}<h2>${needHint ? 'Elmasın bitti' : 'Elmas kazan'}</h2>
+       <div class="reward"><svg aria-hidden="true"><use href="#i-gem"/></svg>${S.gems}</div>
+       ${needHint ? `<p>İpucu ${HINT_COST} elmas tutar.</p>` : ''}
+       <div class="stack" style="margin-top:14px">${adRow}</div>
+       <ul class="ways">
+         <li><b>Bonus kelime</b> Bulmacada yeri olmayan her doğru kelime +${BONUS_GEMS} elmas</li>
+         <li><b>Hediye kutusu</b> Her ${GIFT_EVERY} bölümde +${GIFT_GEMS} elmas</li>
+         <li><b>Seviye ödülü</b> Bir seviye bitince +${TIER_GEMS} elmas</li>
+       </ul>`,
+      (m) => {
+        const b = $('#gem-ad', m);
+        if (!b) return;
+        b.addEventListener('click', async () => {
+          if (!Ads.rewardedReady()) { $('#gem-ad-note', m).hidden = false; return; }
+          b.disabled = true;
+          const earned = await Ads.rewarded();
+          if (earned) {
+            S.gems += REWARD_GEMS;
+            shownGems = S.gems;
+            updateGems(true);
+            save();
+            Sound.gift();
+            if (!$('#modal').hidden && $('#gem-ad')) closeModal();
+            toast(`+${REWARD_GEMS} elmas kazandın!`);
+          } else if (b.isConnected) { b.disabled = false; $('#gem-ad-note', m).hidden = false; }
+        });
+      }
     );
   }
 
@@ -837,10 +1058,13 @@
          <div class="confirm" id="set-confirm" hidden><p>Bölümler, elmaslar ve kartlar silinecek. Bu işlem geri alınamaz.</p>
            <div class="row"><button class="btn-plain" id="set-cancel">Vazgeç</button><button class="btn-danger" id="set-do-reset">Sıfırla</button></div></div>
        </div>
-       <div class="small">Kelime Avı · sürüm ${VERSION}<br>Kelimeler, bölümler ve çizimler bu oyuna özgüdür.</div>`,
+       ${Ads.privacyRequired() ? '<button class="btn-plain" id="set-privacy" style="margin-top:10px">Reklam gizlilik ayarları</button>' : ''}
+       <div class="small">Kelime Avı · sürüm ${VERSION} · ${LEVELS.length} bölüm<br>Kelimeler, bölümler ve çizimler bu oyuna özgüdür.</div>`,
       (m) => {
         $('#set-sound', m).addEventListener('click', (e) => { S.sound = !S.sound; e.currentTarget.setAttribute('aria-checked', String(S.sound)); save(); if (S.sound) Sound.click(); });
         $('#set-haptics', m).addEventListener('click', (e) => { S.haptics = !S.haptics; e.currentTarget.setAttribute('aria-checked', String(S.haptics)); save(); buzz(20); });
+        const priv = $('#set-privacy', m);
+        if (priv) priv.addEventListener('click', () => Ads.showPrivacy());
         const home = $('#set-home', m);
         if (home) home.addEventListener('click', () => { closeModal(); showHome(); });
         $('#set-reset', m).addEventListener('click', () => { $('#set-confirm', m).hidden = false; $('#set-reset', m).hidden = true; $('#set-cancel', m).focus(); });
@@ -869,6 +1093,8 @@
       Sound.click();
       if (act === 'settings') settingsModal();
       else if (act === 'cards') cardsModal();
+      else if (act === 'map') mapModal();
+      else if (act === 'gems') gemsModal(false);
       else if (act === 'home') { completeRun++; showHome(); }
     });
     $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal' && $('.close', e.currentTarget)) closeModal(); });
@@ -926,6 +1152,17 @@
   if (hot && typeof hot.ready === 'function') hot.ready(start);
   else start((hot && hot.data) || {});
 
-  // Testler için küçük bir pencere (oyun mantığını değiştirmez)
-  window.__kelimeAvi = { state: () => S, level: () => L, screen: () => screen };
+  // Android "geri" tuşu: pencere açıksa kapatır, oyundaysa ana sayfaya döner.
+  // false dönerse uygulama arka plana alınır (ana sayfadayken).
+  function back() {
+    if ($('#ad-full')) return true;
+    if (!$('#modal').hidden) { closeModal(); return true; }
+    if (tutMode && tutMode !== 'first') { hideTutorial(); return true; }
+    if (busy) return true;
+    if (screen === 'game' || screen === 'complete' || screen === 'end') { completeRun++; showHome(); return true; }
+    return false;
+  }
+
+  // Android katmanı ve testler için küçük bir pencere (oyun mantığını değiştirmez)
+  window.__kelimeAvi = { state: () => S, level: () => L, screen: () => screen, back, ads: Ads };
 })();

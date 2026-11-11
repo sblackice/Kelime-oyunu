@@ -2,20 +2,35 @@ plugins {
     id 'com.android.application'
 }
 
+// Reklam kimlikleri android/ads.properties dosyasından okunur
+def adProps = new Properties()
+file("${rootDir}/ads.properties").withInputStream { adProps.load(it) }
+
 android {
     namespace 'com.kelimeavi.oyun'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId 'com.kelimeavi.oyun'
         minSdk 26
-        targetSdk 34
+        targetSdk 36          // Google Play şartı (31 Ağustos 2026'dan beri): Android 16 / API 36
         versionCode((project.findProperty('versionCode') ?: '1').toString().toInteger())
-        versionName '0.1.' + (project.findProperty('versionCode') ?: '1')
+        versionName '0.2.' + (project.findProperty('versionCode') ?: '1')
+
+        manifestPlaceholders = [admobAppId: adProps.getProperty('admobAppId')]
+        buildConfigField 'boolean', 'ADS_ENABLED', adProps.getProperty('adsEnabled', 'true')
+        buildConfigField 'String', 'AD_BANNER', "\"${adProps.getProperty('bannerUnitId')}\""
+        buildConfigField 'String', 'AD_INTERSTITIAL', "\"${adProps.getProperty('interstitialUnitId')}\""
+        buildConfigField 'String', 'AD_REWARDED', "\"${adProps.getProperty('rewardedUnitId')}\""
     }
 
-    // Yalnızca test dağıtımı için imza anahtarı. Google Play'e yüklemeden önce
-    // gizli tutulan ayrı bir anahtar oluşturulmalıdır.
+    buildFeatures {
+        buildConfig true
+    }
+
+    // İmza: KELIMEAVI_KEYSTORE ortam değişkeni verilirse o (gizli) anahtar kullanılır.
+    // Verilmezse yalnızca test dağıtımı için olan, depodaki açık anahtar kullanılır.
+    // Google Play'e yüklenecek sürüm mutlaka gizli anahtarla imzalanmalıdır.
     signingConfigs {
         test {
             storeFile file('kelime-avi-test.keystore')
@@ -23,11 +38,23 @@ android {
             keyAlias 'kelimeavi'
             keyPassword 'kelimeavi-test'
         }
+        upload {
+            def ks = System.getenv('KELIMEAVI_KEYSTORE')
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('KELIMEAVI_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('KELIMEAVI_KEY_ALIAS')
+                keyPassword System.getenv('KELIMEAVI_KEY_PASSWORD')
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig System.getenv('KELIMEAVI_KEYSTORE') ? signingConfigs.upload : signingConfigs.test
+        }
+        debug {
             signingConfig signingConfigs.test
         }
     }
@@ -40,4 +67,8 @@ android {
 
 dependencies {
     implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'androidx.activity:activity:1.10.1'
+    // Google Mobile Ads (AdMob) ve kullanıcı izni (UMP) kütüphaneleri
+    implementation 'com.google.android.gms:play-services-ads:24.4.0'
+    implementation 'com.google.android.ump:user-messaging-platform:3.1.0'
 }
