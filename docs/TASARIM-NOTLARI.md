@@ -1,4 +1,4 @@
-# Kelime Avı – Tasarım Notları (sürüm 0.1)
+# Kelime Avı – Tasarım Notları (sürüm 0.2)
 
 Bu belge, Kelime Avı'nın Words of Wonders'tan (WOW) **neleri aynen aldığını**, **neleri bilerek farklı yaptığını** ve WOW'da gözlenemediği için **hangi kararları bu projenin kendisinin verdiğini** açıklar.
 Gözlemlerin kaynağı: [`WOW-analiz-raporu.md`](WOW-analiz-raporu.md).
@@ -18,7 +18,7 @@ Gözlemlerin kaynağı: [`WOW-analiz-raporu.md`](WOW-analiz-raporu.md).
 | Başlangıç bakiyesi | 200 elmas |
 | İlk bölüm eğitimi | Ekran kararır, "… kelimesinin harflerini birleştir." yazar; karıştırma düğmesi gizlidir |
 | Zorluk | 3 harf/2 kelime ile başlar, anagram çiftleri, sonra harf sayısı artar; her bölümde tüm harfleri kullanan bir kelime var |
-| İlerleme çubukları | 8 bölümlük hediye çubuğu + 4 bölümlük durak çubuğu (kart resmiyle) |
+| İlerleme çubukları | 8 bölümlük hediye çubuğu + durak çubuğu (kart resmiyle). WOW'un ilk durağı 4 bölümdü; Kelime Avı'nda her durak 20 bölüm |
 | Övgü bandı | Son kelimede "GÜZEL / SÜPER / HARİKA / MÜKEMMEL" |
 | Sesler | Harf seçme, doğru/yanlış kelime, ipucu ve bölüm sonu efektleri; sürekli müzik yok (WOW kaydında da duyulmadı) |
 | Kayıt | Uygulama kapanıp açılınca kalınan yerden devam |
@@ -47,62 +47,50 @@ Aşağıdakiler WOW'da **görülmedi**. Oyunun eksiksiz çalışması için mant
 - **İpucuyla tamamlanan kelime:** Bütün harfleri ipucuyla açılan kelime bulunmuş sayılır.
 - **Klavye desteği:** Bilgisayarda yazarak oynama.
 - **Titreşim ayarı** ve **ilerlemeyi sıfırlama** (onaylı).
-- **32. bölümden sonra:** "Bütün durakları gezdin!" ekranı ve "Baştan oyna".
+- **Son bölümden sonra:** "Bütün durakları gezdin!" ekranı ve "Baştan oyna".
+- **Seviyeler:** 12 durak 4 seviyeye ayrıldı (Çırak, Kalfa, Usta, Üstat). Her seviye sonunda +250 elmas.
+- **Bonus kelime:** Bulmacada yeri olmayan ama sözlükte bulunan kelime +5 elmas verir (bölüm başına her kelime bir kez).
+- **Bölüm numarası:** Oyun ekranının üstünde yazar.
+- **Android geri tuşu:** Açık pencereyi kapatır, oyundayken ana sayfaya döner, ana sayfadayken uygulamayı arka plana alır.
 
 ## 4. Bu sürümde olmayanlar
 
 | Özellik | Neden yok? |
 |---|---|
-| Bonus kelime | Lisansı uygun bir Türkçe sözlük listesi henüz seçilmedi. WOW'da da bu özellik gözlenmedi |
 | Mavi "W" jetonu | WOW'da ne işe yaradığı anlaşılamadı |
-| Reklam ve uygulama içi satın alma | Mağaza hesabı, gizlilik onayı ve test süreci gerektirir |
-| Günlük bulmaca / görevler | WOW'un ilk bölümlerinde görülmedi |
+| Uygulama içi satın alma | Mağaza hesabı, vergi/ödeme ayarları ve test süreci gerektirir |
+| Günlük bulmaca / görevler / günlük ödül | Öneri olarak sunuldu; henüz yapılmadı |
 | Arka plan müziği | WOW kaydında duyulmadı |
-| Android uygulaması (APK) | Sonraki aşama; şu an tarayıcıda çalışan tek dosya |
+| Gerçek reklamlar | Altyapı hazır; şu an Google'ın deneme reklamları çıkıyor. Bkz. [`PLAY-STORE-REHBERI.md`](PLAY-STORE-REHBERI.md) |
 
-## 5. Bölüm listesi
+## 5. Bölüm listesi (ana kelimeler)
 
-| Bölüm | Durak | Harfler | Kelimeler |
+Her bölümün tüm kelimeleri `tools/level-source.mjs` dosyasındadır. Aşağıda her bölümün ana (en uzun) kelimesi var.
+
+| Bölümler | Seviye | Durak | Ana kelimeler |
 |---|---|---|---|
-| 1 | Kapadokya | K O Y | KOY, YOK |
-| 2 | Kapadokya | Y A T | YAT, TAY |
-| 3 | Kapadokya | S A P | SAP, PAS |
-| 4 | Kapadokya | K A Y A | KAYA, YAKA, AYA |
-| 5 | Efes Antik Kenti | K U R T | KURT, KUR, TUR |
-| 6 | Efes Antik Kenti | D A M A | DAMA, DAM, ADA |
-| 7 | Efes Antik Kenti | K U L E | KULE, KUL, KEL |
-| 8 | Efes Antik Kenti | S A R I | SARI, ASIR, ARI, SIR |
-| 9 | Ayasofya | B A L I K | BALIK, AKIL, BAL, KIL |
-| 10 | Ayasofya | S A R A Y | SARAY, YARA, ARA, YAS, RAY |
-| 11 | Ayasofya | G Ü N E Ş | GÜNEŞ, GÜN, ŞEN, GEN |
-| 12 | Ayasofya | K İ T A P | KİTAP, TAKİP, KAT, KAP, TİP |
-| 13 | Pamukkale | P A M U K | PAMUK, PUMA, KUM, KAP |
-| 14 | Pamukkale | K A L E M | KALEM, KALE, ELMA, MAL, KEL |
-| 15 | Pamukkale | D A M L A | DAMLA, ADAM, LAMA, DAL, DAM |
-| 16 | Pamukkale | O R M A N | ORMAN, ROMAN, MOR, NAR |
-| 17 | Nemrut Dağı | D U V A R | DUVAR, VAR, DUA, DAR |
-| 18 | Nemrut Dağı | A S L A N | ASLAN, SANAL, ALAN, NAL, SAL, ANA |
-| 19 | Nemrut Dağı | Y A Z I K | YAZIK, YAZI, KAZI, AZIK, KIZ, KAZ |
-| 20 | Nemrut Dağı | K A R T A L | KARTAL, TARLA, KART, KAR, KAT, ATA |
-| 21 | Galata Kulesi | M A R T I | MARTI, MART, TAM, ARI |
-| 22 | Galata Kulesi | T A V A N | TAVAN, VATAN, ANT, TAN, ANA |
-| 23 | Galata Kulesi | Ş A R K I | ŞARKI, KIŞ, ŞIK, KIR, KAR, AŞK |
-| 24 | Galata Kulesi | K A P T A N | KAPTAN, KANAT, KAPAN, KAN, KAP, TAN |
-| 25 | Sümela Manastırı | T O P R A K | TOPRAK, ORTA, ROTA, ORAK, PARK, TOP |
-| 26 | Sümela Manastırı | K A R D E Ş | KARDEŞ, KADER, KAŞ, AŞK, DAR, KAR |
-| 27 | Sümela Manastırı | K A Y N A K | KAYNAK, AYAK, KAYA, YAKA, KAN, YAN |
-| 28 | Sümela Manastırı | Y A P R A K | YAPRAK, PARK, YARA, PAY, RAY, ARK |
-| 29 | Göbeklitepe | Y I L A N | YILAN, ALIN, ANI, NAL, YAN |
-| 30 | Göbeklitepe | A K R E P | AKREP, KREP, PEK, KAR, ARK |
-| 31 | Göbeklitepe | T A Ş K I N | TAŞKIN, TANIK, AKIN, KATI, TAŞ, KIŞ |
-| 32 | Göbeklitepe | T A P I N A K | TAPINAK, KANAT, KAPAN, KAPI, TAKI, KITA |
+| 1–20 | Çırak | Kapadokya (Nevşehir) | KOY, YAT, SAP, KAYA, KURT, DAMA, KULE, SARI, YENİ, AYNI, PARA, SAAT, ESKİ, TANE, FARK, AÇIK, GENÇ, TERK, HATA, ASIL |
+| 21–40 | Çırak | Efes Antik Kenti (İzmir) | FİLM, FENA, DEFA, SERT, AŞIK, KRAL, PARK, KARA, AĞIR, İKNA, KALP, ADİL, IŞIK, AYRI, ORTA, AKIL, KİLO, İNŞA, ÜLKE, TREN |
+| 41–60 | Çırak | Ayasofya (İstanbul) | EKİP, AKSİ, DERT, KANI, YARA, KATI, HALK, AĞAÇ, YAZI, KART, MASA, TARZ, BALIK, SARAY, GÜNEŞ, KİTAP, PAMUK, KALEM, DAMLA, ORMAN |
+| 61–80 | Kalfa | Pamukkale (Denizli) | DUVAR, ASLAN, YAZIK, MARTI, TAVAN, ŞARKI, YILAN, AKREP, HAYIR, TAMAM, ZAMAN, ARTIK, BAŞKA, BAYAN, SELAM, KİMSE, HAZIR, KADIN, KABUL, YARIN |
+| 81–100 | Kalfa | Nemrut Dağı (Adıyaman) | HAFTA, YALAN, İNSAN, MERAK, POLİS, AKŞAM, SAKİN, KARAR, SABAH, YETER, DÜNYA, ANCAK, KOLAY, SAHİP, YAKIN, GARİP, HAYAL, RAHAT, HAYAT, KESİN |
+| 101–120 | Kalfa | Galata Kulesi (İstanbul) | GELİR, ZARAR, GİZLİ, BEYAZ, ÇIKAR, HASTA, YEMİN, SICAK, NEFES, BASİT, KÖPEK, KAYIP, SAYIN, CANLI, KARTAL, KAPTAN, TOPRAK, KARDEŞ, KAYNAK, YAPRAK |
+| 121–140 | Usta | Sümela Manastırı (Trabzon) | TAŞKIN, LÜTFEN, YARDIM, HARİKA, TEKRAR, YANLIŞ, DOKTOR, DIŞARI, YALNIZ, NEFRET, SANİYE, ÇEVİRİ, YÜKSEK, TAHMİN, BERBAT, BAŞKAN, NORMAL, PARDON, MİLLET, YUKARI |
+| 141–160 | Usta | Göbeklitepe (Şanlıurfa) | PATRON, DÜRÜST, TEKLİF, TESLİM, KELİME, ZENGİN, DESTEK, KUTSAL, HAYVAN, KAPALI, PARMAK, HAMİLE, TEDAVİ, DÜZGÜN, YARGIÇ, AVUKAT, SAĞLAM, İTİRAF, HİZMET, FIRSAT |
+| 161–180 | Usta | Truva (Çanakkale) | İŞARET, İHANET, SAĞLIK, YILLIK, DÜŞMAN, ŞİRKET, KURŞUN, PARLAK, YANGIN, SOSYAL, KAMERA, TESPİT, TEKNİK, FUTBOL, TAPINAK, MERHABA, KONTROL, HAREKET, SÜREKLİ, TELEFON |
+| 181–200 | Üstat | Bodrum Kalesi (Muğla) | KORKUNÇ, ARKADAŞ, YETERLİ, SEVGİLİ, ANLAŞMA, SERBEST, KİŞİSEL, YÜZBAŞI, GEREKLİ, YARAMAZ, DEĞERLİ, ZİYARET, YABANCI, EVLİLİK, SALDIRI, SORUMLU, KOCAMAN, İHTİYAÇ, TAVSİYE, HAYALET |
+| 201–220 | Üstat | Safranbolu Evleri (Karabük) | SAVUNMA, NİHAYET, MAHKEME, BİNBAŞI, PRENSES, KARIŞIK, GÖSTERİ, SEVİMLİ, CESARET, MÜSAADE, KRALİÇE, HEYECAN, ANAHTAR, ÖĞRENCİ, SEYAHAT, FEDERAL, HEMŞİRE, YUMURTA, GEÇERLİ, SİPARİŞ |
+| 221–240 | Üstat | İshak Paşa Sarayı (Ağrı) | TEHLİKE, RANDEVU, YUMUŞAK, KOMUTAN, KOMİSER, TAHLİYE, UFAKLIK, DOKTORA, HASTANE, NÜKLEER, TANIDIK, MÜŞTERİ, İNTİKAM, SEÇENEK, GARANTİ, OYUNCAK, PATATES, SİGORTA, FIRTINA, SENATÖR |
 
-**Not:** Kelimeler yaygın Türkçe kelimelerden seçildi. Bir sözlükle otomatik doğrulama **yapılmadı**. Yayından önce bir kez TDK sözlüğünden elle kontrol edilmesi önerilir.
+
+**Kelimeler nasıl seçildi?** Bir kelimenin bulmacaya girmesi için (1) Zemberek sözlüğünde madde başı olması, (2) film altyazılarından çıkarılmış sıklık listesinde yeterince sık geçmesi ve (3) elle tutulan "gösterme" listesinde olmaması gerekir. Kaba sözler hiçbir yerde kabul edilmez. Çekimli biçimler (ör. "evler"), özel adlar ve çocuklara uygun olmayan ya da hassas konular bulmacada gösterilmez.
+
+**Dürüst not:** Liste bir kez gözle tarandı, ama 775 farklı kelimenin tek tek TDK sözlüğünden kontrolü **yapılmadı**. Sıklık listesi film altyazılarından geldiği için günlük konuşma dilini yansıtır. Yayından önce bir insanın listeyi baştan sona okuması önerilir.
 
 ## 6. Bilinen sınırlamalar ve sonraki adımlar
 
-1. **Yazı tipleri** (Baloo 2, Nunito) Google Fonts'tan yüklenir. İnternet yoksa telefonun kendi yazı tipi kullanılır, oyun yine çalışır.
-2. **Android uygulaması:** Tek dosyalık web oyunu bir Android paketine dönüştürülebilir. Hangi aracın (ör. Capacitor veya Trusted Web Activity) en uygun olduğu sonraki aşamada araştırılmalı.
-3. **"Kelime Avı" adı:** Mağazalarda bu adı kısmen içeren başka oyunlar var (ör. "Gizli Kelime - Kelime Avı"). Google Play'e yüklemeden önce ad çakışması kontrol edilmeli.
-4. **Daha fazla bölüm:** Araç (`tools/generate-levels.mjs`) yeni bölümleri otomatik yerleştirir. Yeni bölümler için yalnızca kelime listesi yazmak yeterli.
-5. **Gerçek cihaz testi:** Otomatik testler Chromium'da yapıldı (390×844, 360×640 ve 1280×800). iPhone Safari ve farklı Android telefonlarda elle denenmeli.
+1. **Gerçek telefon testi:** Uygulama otomatik olarak bir Android emülatöründe açılıp deneniyor, ama gerçek telefonlarda elle denenmedi.
+2. **Reklam kütüphanesi sürümü:** Derleme, bilinen çalışan bir sürüme (`play-services-ads 24.4.0`) sabitlendi. Yayından önce Google'ın sürüm notlarına bakıp güncel sürüme çıkarılmalı.
+3. **"Kelime Avı" adı:** Mağazalarda bu adı içeren başka oyunlar var. Bkz. Play Store rehberi, bölüm 5.
+4. **Kod küçültme (R8) kapalı:** APK gereğinden büyük. Yayından önce açılıp denenmeli.
+5. **iPhone:** Yalnızca tarayıcı sürümü var.

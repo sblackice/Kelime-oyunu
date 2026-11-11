@@ -3,16 +3,18 @@
 Türkiye'nin tarihî yerlerinde geçen, harfleri birleştirerek kelime bulduğun bir bulmaca oyunu.
 Oyun mantığı **Words of Wonders (WOW) – Kelime Oyunu** uygulamasıyla aynıdır. Ad, logo, renkler, çizimler, sesler, kelimeler ve bölümler bu projeye özgüdür.
 
-- **Sürüm:** 0.1 (ilk oynanabilir sürüm)
-- **Bölüm sayısı:** 32 bölüm, 8 durak (her durakta 4 bölüm)
-- **Duraklar:** Kapadokya · Efes Antik Kenti · Ayasofya · Pamukkale · Nemrut Dağı · Galata Kulesi · Sümela Manastırı · Göbeklitepe
+- **Sürüm:** 0.2
+- **Bölüm sayısı:** 240 bölüm, 12 durak (her durakta 20 bölüm), 4 seviye
+- **Seviyeler:** Çırak (3–4 harf) · Kalfa (5 harf) · Usta (6 harf) · Üstat (7 harf)
+- **Duraklar:** Kapadokya · Efes Antik Kenti · Ayasofya · Pamukkale · Nemrut Dağı · Galata Kulesi · Sümela Manastırı · Göbeklitepe · Truva · Bodrum Kalesi · Safranbolu Evleri · İshak Paşa Sarayı
 - **Ana ekran:** Kız Kulesi
+- **Reklam ve Google Play:** [`docs/PLAY-STORE-REHBERI.md`](docs/PLAY-STORE-REHBERI.md)
 
 ## İndir (Android)
 
 **[kelime-avi.apk dosyasını indir](https://github.com/sblackice/Kelime-oyunu/releases/latest/download/kelime-avi.apk)** · [Tüm sürümler](https://github.com/sblackice/Kelime-oyunu/releases)
 
-APK her güncellemede GitHub Actions tarafından otomatik derlenir (`.github/workflows/android.yml`). Bu bir test sürümüdür ve test imza anahtarıyla imzalanmıştır; Google Play için ayrı, gizli bir anahtar gerekir.
+APK her güncellemede GitHub Actions tarafından otomatik derlenir ve bir Android emülatöründe açılıp denenir (`.github/workflows/android.yml`, `android/ci/emulator-test.sh`). Bu bir test sürümüdür: test imza anahtarıyla imzalanmıştır ve Google'ın **deneme** reklamlarını gösterir. Google Play için ayrı, gizli bir anahtar ve kendi AdMob kimliklerin gerekir.
 
 ## Nasıl oynanır?
 
@@ -22,7 +24,9 @@ APK her güncellemede GitHub Actions tarafından otomatik derlenir (`.github/wor
 4. Bulmacadaki bütün kelimeleri bulunca bölüm biter.
 5. Takılırsan ampul düğmesine bas. **İpucu** boş bir kutuya bir harf açar ve 100 elmas tutar.
 6. Ortadaki çapraz ok düğmesi harflerin yerini **karıştırır** (ücretsiz).
-7. 8 bölümde bir **hediye kutusu** (+100 elmas) açılır. Her durağın 4 bölümü bitince o yerin **kartı** kazanılır. Kartlar sol alttaki "Kartlarım" düğmesinde durur.
+7. Bulmacada yeri olmayan ama doğru olan bir kelime bulursan **bonus kelime** sayılır: +5 elmas.
+8. 8 bölümde bir **hediye kutusu** (+100 elmas) açılır. Her durağın 20 bölümü bitince o yerin **kartı**, her seviyenin 3 durağı bitince **seviye ödülü** (+250 elmas) kazanılır.
+9. Ana ekrandaki seviye kutusuna dokununca **Seviyeler** penceresi açılır: hangi durakta olduğunu ve kalanları gösterir.
 
 Bilgisayarda klavyeyle de oynanabilir: harfleri yaz, **Enter** ile gönder, **Backspace** ile son harfi sil.
 
@@ -34,12 +38,15 @@ Bilgisayarda klavyeyle de oynanabilir: harfleri yaz, **Enter** ile gönder, **Ba
 |---|---|
 | `dist/kelime-avi.html` | Oynanabilir oyun (tek dosya) |
 | `dist/kelime-avi-artifact.html` | Claude'da yayınlanan sürüm |
-| `src/` | Oyunun kaynak dosyaları: `app.html` (ekranlar), `style.css` (görünüm), `game.js` (oyun mantığı), `levels.js` (üretilmiş bölümler), `scenes/` (arka plan çizimleri) |
-| `tools/level-source.mjs` | **Bölümler burada yazılır** (harfler ve kelimeler) |
+| `src/` | Oyunun kaynak dosyaları: `app.html` (ekranlar), `style.css` (görünüm), `game.js` (oyun mantığı), `levels.js` (üretilmiş bölümler), `scenes/` (arka plan çizimleri), `fonts/` (yazı tipleri, SIL OFL 1.1) |
+| `tools/level-source.mjs` | **Bölümlerin listesi** (harfler, kelimeler, bonus kelimeler) |
+| `tools/kelime-ayar.mjs` | Duraklar, seviyeler, zorluk planı ve istenmeyen kelime listeleri |
+| `tools/suggest-levels.mjs` | Sözlükten bölüm önerir ve `level-source.mjs` dosyasını yazar (elle çalıştırılır) |
 | `tools/generate-levels.mjs` | Bölümleri doğrular, bulmaca yerleşimini otomatik hesaplar |
+| `android/` | Android uygulama kabuğu; `ads.properties` reklam kimlikleri |
 | `tools/build-scenes.mjs` | Tarihî yer çizimlerini (SVG) üretir |
 | `tools/build.mjs` | Her şeyi `dist/` içindeki tek dosyada birleştirir |
-| `tools/test-e2e.mjs` | 32 bölümü tarayıcıda baştan sona oynayan otomatik test |
+| `tools/test-e2e.mjs` | 240 bölümü tarayıcıda baştan sona oynayan otomatik test (yaklaşık 8 dakika) |
 | `docs/WOW-analiz-raporu.md` | Words of Wonders analiz raporu |
 | `docs/TASARIM-NOTLARI.md` | Nelerin WOW ile aynı, nelerin farklı olduğu ve bölüm listesi |
 
@@ -58,11 +65,15 @@ Test için bir kez kurulum: `npm i -D playwright` ve ardından `npx playwright i
 
 ### Yeni bölüm eklemek
 
-1. `tools/level-source.mjs` dosyasında `LOCATIONS` listesine yeni durağı, `LEVEL_SOURCE` listesine de 4 bölümü ekle. İlk kelime, tüm harfleri kullanan kelime olmalı.
-2. Yeni durak için `tools/build-scenes.mjs` içine bir çizim fonksiyonu ekle (dosya adı durağın `id` değeriyle aynı olmalı).
-3. Sırasıyla `generate-levels`, `build-scenes`, `build` ve `test-e2e` komutlarını çalıştır.
+Bölümler sözlükten üretilir, sonra gözle kontrol edilir:
 
-Araç; kelimelerin harflerle kurulabildiğini, tekrar olmadığını ve en az bir kelimenin tüm harfleri kullandığını kontrol eder. Kurallara uymayan bölümde hata verir.
+1. Sözlük dosyalarını `tools/sozluk/` klasörüne indir (depoya eklenmez):
+   - `master-dictionary.dict` → [Zemberek-NLP](https://github.com/ahmetaa/zemberek-nlp) (Apache-2.0): kelimenin Türkçe olup olmadığı
+   - `tr_50k.txt` → [FrequencyWords](https://github.com/hermitdave/FrequencyWords) (içerik CC-BY-SA-4.0): kelimenin ne kadar yaygın olduğu (yalnızca sıralama için)
+2. `tools/kelime-ayar.mjs` içinde durağı (`LOCATIONS`), seviyeyi (`TIERS`) ve harf sayısı planını (`LENGTH_PLAN`) güncelle.
+3. `node tools/suggest-levels.mjs --dry` ile öneriyi oku. Beğenmediğin kelimeyi `GRID_AVOID` (bulmacada gösterme) ya da `BAN` (hiç kabul etme) listesine ekle ve tekrar çalıştır.
+4. `node tools/suggest-levels.mjs` ile `level-source.mjs` dosyasını yaz; sonra `generate-levels`, `build-scenes`, `build` ve `test-e2e`.
+5. Yeni durak için `tools/build-scenes.mjs` içine bir çizim fonksiyonu ekle (adı durağın `id` değeriyle aynı olmalı).
 
 ## Lisans
 
