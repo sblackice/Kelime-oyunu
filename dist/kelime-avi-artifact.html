@@ -101,6 +101,13 @@ button.pill { border: 0; padding-right: 5px; }
   -webkit-text-stroke: 3px var(--cini-dark); paint-order: stroke fill; text-shadow: 0 5px 0 var(--cini-dark);
 }
 
+.logo-word { display: flex; align-items: center; gap: 6px; }
+.logo-lens { width: 0.74em; height: 0.74em; flex: none; margin-top: 0.06em; }
+.logo-sub {
+  margin-top: 6px; padding: 6px 16px 5px; border-radius: 999px; background: linear-gradient(var(--cini-2), var(--cini-dark));
+  border: 2px solid var(--altin); color: #fff; font: 800 13px/1 var(--font-display); letter-spacing: 0.16em; white-space: nowrap;
+}
+
 /* ---------- yükleme ---------- */
 .loading .col { justify-content: center; gap: 26px; }
 .loading .load { width: min(300px, 80%); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40vh; }
@@ -352,6 +359,13 @@ button.pill { border: 0; padding-right: 5px; }
 .ad-btn em { display: inline-flex; align-items: center; gap: 3px; padding: 5px 9px 4px 5px; border-radius: 999px; background: rgba(8, 14, 48, 0.35); font: 800 15px/1 var(--font-body); font-style: normal; }
 .ad-btn em svg { width: 18px; height: 18px; }
 .ad-btn:disabled { opacity: 0.6; }
+.days { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.days li { padding: 6px 0 5px; border-radius: 9px; background: #fff; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+.days small { font: 800 9px/1 var(--font-body); }
+.days b { font: 800 14px/1 var(--font-body); color: var(--ink); }
+.days .past { background: #dff3e4; }
+.days .now { background: var(--altin); box-shadow: 0 2px 0 #c98a12; }
+.days .now small { color: #6b4a08; }
 /* Reklam alanı önizlemesi (yalnızca ?reklam=demo) */
 .ad-demo { display: none; position: fixed; left: 0; right: 0; bottom: 0; height: 60px; z-index: 5; background: #0b0e24; border-top: 1px solid rgba(255, 255, 255, 0.14); color: #9aa0bd; align-items: center; justify-content: center; flex-direction: column; gap: 3px; font: 800 13px/1 var(--font-body); letter-spacing: 0.14em; }
 .ad-demo small { font: 700 11px/1 var(--font-body); letter-spacing: 0.04em; opacity: 0.75; }
@@ -411,9 +425,10 @@ button.pill { border: 0; padding-right: 5px; }
   <!-- Yükleme ekranı -->
   <section id="scr-loading" class="screen loading" aria-label="Yükleniyor">
     <div class="col">
-      <div class="logo" aria-label="Kelime Avı">
+      <div class="logo" aria-label="Kelime Avı: Anadolu Yolculuğu">
         <div class="logo-tiles" aria-hidden="true"><span>K</span><span>E</span><span>L</span><span>İ</span><span>M</span><span>E</span></div>
-        <div class="logo-word" aria-hidden="true">AVI</div>
+        <div class="logo-word" aria-hidden="true"><svg class="logo-lens"><use href="#i-lens"/></svg>AVI</div>
+        <div class="logo-sub" aria-hidden="true">ANADOLU YOLCULUĞU</div>
       </div>
       <div class="load">
         <div class="load-label">YÜKLENİYOR...</div>
@@ -429,9 +444,10 @@ button.pill { border: 0; padding-right: 5px; }
         <button class="pill" data-gems data-act="gems" aria-label="Elmas kazan"><svg aria-hidden="true"><use href="#i-gem"/></svg><span>200</span><i aria-hidden="true">+</i></button>
         <button class="icon-btn" data-act="settings" aria-label="Ayarlar"><svg aria-hidden="true"><use href="#i-gear"/></svg></button>
       </header>
-      <div class="logo" aria-label="Kelime Avı">
+      <div class="logo" aria-label="Kelime Avı: Anadolu Yolculuğu">
         <div class="logo-tiles" aria-hidden="true"><span>K</span><span>E</span><span>L</span><span>İ</span><span>M</span><span>E</span></div>
-        <div class="logo-word" aria-hidden="true">AVI</div>
+        <div class="logo-word" aria-hidden="true"><svg class="logo-lens"><use href="#i-lens"/></svg>AVI</div>
+        <div class="logo-sub" aria-hidden="true">ANADOLU YOLCULUĞU</div>
       </div>
       <div class="journey" id="home-journey"><b id="home-count">0</b><span>YOLCULUK</span></div>
       <button id="btn-play" class="btn-green">BÖLÜM 1</button>
@@ -497,7 +513,8 @@ button.pill { border: 0; padding-right: 5px; }
     <div class="col">
       <div class="logo" aria-hidden="true">
         <div class="logo-tiles"><span>K</span><span>E</span><span>L</span><span>İ</span><span>M</span><span>E</span></div>
-        <div class="logo-word">AVI</div>
+        <div class="logo-word"><svg class="logo-lens"><use href="#i-lens"/></svg>AVI</div>
+        <div class="logo-sub">ANADOLU YOLCULUĞU</div>
       </div>
       <h1>Bütün durakları gezdin!</h1>
       <p id="end-text">Sekiz tarihî durağın tüm bölümlerini bitirdin. Yeni duraklar eklenene kadar bölümleri baştan oynayabilirsin.</p>
@@ -541,6 +558,7 @@ button.pill { border: 0; padding-right: 5px; }
     <path d="M24 13c-3-6-11-8-12-3-1 4 7 4 12 3zM24 13c3-6 11-8 12-3 1 4-7 4-12 3z" fill="#f1b434" stroke="#c98a12" stroke-width="1.2"/>
   </symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="4" fill="currentColor"/><path d="M10 8.5v7l6-3.5z" fill="#1f4fa3"/></symbol>
+  <symbol id="i-lens" viewBox="0 0 48 48"><path d="M30 30l12 12" stroke="#14336e" stroke-width="11" stroke-linecap="round"/><path d="M30 30l12 12" stroke="#f1b434" stroke-width="6" stroke-linecap="round"/><circle cx="20" cy="20" r="14" fill="#bfe6ff" fill-opacity="0.45" stroke="#14336e" stroke-width="8.5"/><circle cx="20" cy="20" r="14" fill="none" stroke="#f1b434" stroke-width="4.5"/><path d="M12 17a9 9 0 0 1 7-6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
   <symbol id="i-arrow" viewBox="0 0 36 24"><path d="M2 12h26M20 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -577,7 +595,8 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
   const INTER_EVERY = 3;      // en sık 3 bölümde bir
   const INTER_MIN_GAP = 120e3; // iki tam ekran reklam arasında en az 2 dakika
   const STORE_KEY = 'kelime-avi:v1';
-  const VERSION = '0.2';
+  const DAILY_GEMS = [20, 30, 40, 50, 60, 80, 150]; // günlük ödül: üst üste girilen 1.–7. gün
+  const VERSION = '0.3';
 
   // ---------- yardımcılar ----------
   const $ = (s, el = document) => el.querySelector(s);
@@ -593,7 +612,7 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
 
   // ---------- durum ----------
   function defaultState() {
-    return { v: 1, level: 1, completed: 0, gems: START_GEMS, bonus: 0, freeHints: 0, tut: {}, cards: [], sound: true, haptics: true, cur: null, updatedAt: 0 };
+    return { v: 1, level: 1, completed: 0, gems: START_GEMS, bonus: 0, daily: { day: '', streak: 0 }, freeHints: 0, tut: {}, cards: [], sound: true, haptics: true, cur: null, updatedAt: 0 };
   }
   function sanitize(d) {
     const s = defaultState();
@@ -603,6 +622,7 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
     s.completed = num(d.completed, 0, 0, 1e7);
     s.gems = num(d.gems, START_GEMS, 0, 1e7);
     s.bonus = num(d.bonus, 0, 0, 1e7);
+    if (d.daily && typeof d.daily.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d.daily.day)) s.daily = { day: d.daily.day, streak: num(d.daily.streak, 1, 1, DAILY_GEMS.length) };
     s.freeHints = num(d.freeHints, 0, 0, 99);
     s.tut = d.tut && typeof d.tut === 'object' ? { ...d.tut } : {};
     s.cards = Array.isArray(d.cards) ? d.cards.filter((c) => LOCATIONS.some((l) => l.id === c)) : [];
@@ -874,6 +894,29 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
     setBackground('kizkulesi');
     renderHome();
     showScreen('home');
+    maybeDaily();
+  }
+
+  // ---------- günlük ödül ----------
+  const dayStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const today = () => dayStr(new Date());
+  // Günde bir kez, ana ekrana gelince verilir. Dün de alındıysa seri 1 artar (7'den sonra 1'e döner);
+  // gün atlandıysa seri baştan başlar. İlk 3 bölümde (oyun öğrenilirken) gösterilmez.
+  function maybeDaily() {
+    if (S.completed < AD_FREE_LEVELS || S.daily.day === today()) return;
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const streak = S.daily.day === dayStr(y) ? (S.daily.streak % DAILY_GEMS.length) + 1 : 1;
+    const reward = DAILY_GEMS[streak - 1];
+    const before = S.gems;
+    S.daily = { day: today(), streak };
+    S.gems += reward;
+    save();
+    setTimeout(() => {
+      if (screen !== 'home' || !$('#modal').hidden) { shownGems = S.gems; updateGems(false); return; }
+      shownGems = before;
+      updateGems(false);
+      dailyModal(streak, reward).then(() => { shownGems = S.gems; updateGems(true); });
+    }, T(450));
   }
 
   // ---------- bölüm ----------
@@ -1416,7 +1459,8 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
     if (info.giftNow) {
       const gi = $('#gift-icon'); gi.classList.remove('bounce'); void gi.offsetWidth; gi.classList.add('bounce');
       await giftModal();
-      shownGems = info.prevGems + GIFT_GEMS;
+      shownGems = Math.min(S.gems, info.prevGems + GIFT_GEMS * 2);
+      if (!info.tierNow) shownGems = S.gems;
       updateGems(true);
       fills[0].style.transition = 'none';
       setBar('#gift-fill', '#gift-text', 0, GIFT_EVERY);
@@ -1496,11 +1540,36 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
 
   function giftModal() {
     Sound.gift();
+    // Reklam hazırsa oyuncu isterse izleyip hediyeyi ikiye katlar
+    const x2 = Ads.enabled && Ads.rewardedReady();
     return openModal(
       `<div class="eyebrow">${GIFT_EVERY} BÖLÜM TAMAM</div><h2>Hediye kutusu!</h2>
        <svg class="gift-big" aria-hidden="true"><use href="#i-gift"/></svg>
        <div class="reward"><svg aria-hidden="true"><use href="#i-gem"/></svg>+${GIFT_GEMS}</div>
-       <button class="btn-blue" data-close data-focus>AL</button>`
+       <div class="stack"><button class="btn-blue" data-close data-focus>AL</button>
+       ${x2 ? `<button class="btn-plain ad-btn" id="gift-x2"><svg aria-hidden="true"><use href="#i-play"/></svg><span>Reklam izle, 2 katını al</span></button>` : ''}</div>`,
+      (m) => {
+        const b = $('#gift-x2', m);
+        if (!b) return;
+        b.addEventListener('click', async () => {
+          b.disabled = true;
+          const earned = await Ads.rewarded();
+          if (earned) { S.gems += GIFT_GEMS; save(); Sound.gift(); toast(`Hediye ikiye katlandı: +${GIFT_GEMS * 2} elmas`); }
+          if (b.isConnected) closeModal();
+        });
+      }
+    );
+  }
+
+  function dailyModal(streak, reward) {
+    Sound.gift();
+    const days = DAILY_GEMS.map((g, i) => `<li class="${i + 1 < streak ? 'past' : i + 1 === streak ? 'now' : ''}"><small>${i + 1}. gün</small><b>${g}</b></li>`).join('');
+    return openModal(
+      `<div class="eyebrow">GÜNLÜK ÖDÜL</div><h2>Hoş geldin!</h2>
+       <ul class="days">${days}</ul>
+       <div class="reward"><svg aria-hidden="true"><use href="#i-gem"/></svg>+${reward}</div>
+       <p>Her gün gir, ödül büyüsün. Bir gün atlarsan seri baştan başlar.</p>
+       <div class="stack" style="margin-top:14px"><button class="btn-blue" data-close data-focus>AL</button></div>`
     );
   }
 
@@ -1549,6 +1618,7 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
        <div class="stack" style="margin-top:14px">${adRow}</div>
        <ul class="ways">
          <li><b>Bonus kelime</b> Bulmacada yeri olmayan her doğru kelime +${BONUS_GEMS} elmas</li>
+         <li><b>Günlük ödül</b> Her gün ilk girişte ${DAILY_GEMS[0]}–${DAILY_GEMS[DAILY_GEMS.length - 1]} elmas</li>
          <li><b>Hediye kutusu</b> Her ${GIFT_EVERY} bölümde +${GIFT_GEMS} elmas</li>
          <li><b>Seviye ödülü</b> Bir seviye bitince +${TIER_GEMS} elmas</li>
        </ul>`,
@@ -1616,7 +1686,7 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
            <div class="row"><button class="btn-plain" id="set-cancel">Vazgeç</button><button class="btn-danger" id="set-do-reset">Sıfırla</button></div></div>
        </div>
        ${Ads.privacyRequired() ? '<button class="btn-plain" id="set-privacy" style="margin-top:10px">Reklam gizlilik ayarları</button>' : ''}
-       <div class="small">Kelime Avı · sürüm ${VERSION} · ${LEVELS.length} bölüm<br>Kelimeler, bölümler ve çizimler bu oyuna özgüdür.</div>`,
+       <div class="small">Kelime Avı: Anadolu Yolculuğu · sürüm ${VERSION} · ${LEVELS.length} bölüm<br>Kelimeler, bölümler ve çizimler bu oyuna özgüdür.</div>`,
       (m) => {
         $('#set-sound', m).addEventListener('click', (e) => { S.sound = !S.sound; e.currentTarget.setAttribute('aria-checked', String(S.sound)); save(); if (S.sound) Sound.click(); });
         $('#set-haptics', m).addEventListener('click', (e) => { S.haptics = !S.haptics; e.currentTarget.setAttribute('aria-checked', String(S.haptics)); save(); buzz(20); });
@@ -1721,7 +1791,7 @@ const LEVELS = [{"n":1,"loc":0,"letters":["K","O","Y"],"rows":3,"cols":3,"words"
   }
 
   // Android katmanı ve testler için küçük bir pencere (oyun mantığını değiştirmez)
-  window.__kelimeAvi = { state: () => S, level: () => L, screen: () => screen, back, ads: Ads };
+  window.__kelimeAvi = { state: () => S, level: () => L, screen: () => screen, back, ads: Ads, today };
 })();
 
 </script>

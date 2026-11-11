@@ -1,4 +1,4 @@
-# Kelime Avı – Reklam ve Google Play Rehberi
+# Kelime Avı: Anadolu Yolculuğu – Reklam ve Google Play Rehberi
 
 Bu belge, oyunu Google Play'e koyup reklam geliri almak için **senin** yapman gerekenleri sırasıyla anlatır.
 Kodun içindeki reklam altyapısı hazırdır; eksik olan şeyler yalnızca senin hesabınla yapılabilecek adımlardır.
@@ -14,7 +14,7 @@ Kodun içindeki reklam altyapısı hazırdır; eksik olan şeyler yalnızca seni
 |---|---|---|
 | **Alt şerit (banner)** | Ekranın en altında, oyunun **dışında** ayrı bir şerit. Harf çemberi ile arasında boşluk var | 4. bölümden itibaren her ekranda. İlk 3 bölümde reklam yok |
 | **Tam ekran (geçiş/interstitial)** | "TEBRİKLER" ekranında sonraki bölüme geçerken | En erken 6. bölümden sonra, en sık 3 bölümde bir ve iki reklam arasında en az 2 dakika |
-| **Ödüllü video (rewarded)** | Elmas penceresinde "REKLAM İZLE" düğmesi (elmas sayacındaki + işareti ya da elmas bitince) | Yalnızca oyuncu isterse. Karşılığı +100 elmas (1 ipucu) |
+| **Ödüllü video (rewarded)** | Elmas penceresinde "REKLAM İZLE" düğmesi (elmas sayacındaki + işareti ya da elmas bitince) ve hediye kutusunda "2 katını al" düğmesi | Yalnızca oyuncu isterse. Karşılığı +100 elmas (1 ipucu) |
 
 Bu sayılar `src/game.js` dosyasının en başındaki sabitlerdir (`AD_FREE_LEVELS`, `INTER_MIN_LEVEL`, `INTER_EVERY`, `INTER_MIN_GAP`, `REWARD_GEMS`). Değiştirmek için yalnızca o sayıları değiştirmek yeterlidir.
 
@@ -46,8 +46,8 @@ Bu kimlikler hatırlanan değerlerdir; yalnızca geçiş ve ödüllü reklam kim
 1. **Geliştirici hesabı:** <https://play.google.com/console> → bir kerelik kayıt ücreti vardır (bu belge yazılırken 25 ABD doları olarak biliniyordu; güncel tutarı Google'ın ekranında gör).
 2. **Yeni kişisel hesaplarda kapalı test şartı:** Google, yeni kişisel hesaplardan, uygulamayı herkese açmadan önce belli sayıda test kullanıcısıyla belli bir süre kapalı test yapmasını istiyor. Sayı ve süre zamanla değişti; güncel şartı Play Console sana gösterir. **Bu yüzden yayın birkaç hafta sürebilir.**
 3. **Gizli imza anahtarı:** Depodaki test anahtarı herkese açıktır; mağaza için **kullanılamaz**. Kendi bilgisayarında bir anahtar oluşturman ve saklaman gerekir. Bu anahtar kaybolursa uygulamayı güncelleyemezsin. Hazır olduğunda adım adım birlikte yaparız.
-4. **AAB dosyası:** Google Play, APK yerine `.aab` (uygulama paketi) ister. Derleme sistemi bunu üretebilir (`./gradlew bundleRelease`); gizli anahtar hazır olunca ekleriz.
-5. **Mağaza sayfası:** Uygulama adı, kısa ve uzun açıklama, simge (512×512), öne çıkan görsel (1024×500), en az 2 telefon ekran görüntüsü.
+4. **AAB dosyası:** Google Play, APK yerine `.aab` (uygulama paketi) ister. Derleme sistemi her seferinde bunu da üretip derlenebildiğini doğruluyor, ama test anahtarıyla imzalı olduğu için indirmeye sunmuyor. Gizli anahtar hazır olunca yayınlanabilir sürümü ekleriz.
+5. **Mağaza sayfası:** Uygulama adı, kısa ve uzun açıklama, simge (512×512), öne çıkan görsel (1024×500), en az 2 telefon ekran görüntüsü. Hepsi hazır: metinler [`MAGAZA-METINLERI.md`](MAGAZA-METINLERI.md), görseller `store/` klasöründe.
 6. **Uygulama içeriği formları (zorunlu):**
    - **Gizlilik politikası adresi:** Reklam gösteren uygulamalarda zorunludur. Taslak: [`gizlilik-politikasi-taslak.md`](gizlilik-politikasi-taslak.md). İnternette herkesin açabileceği bir adreste durmalıdır.
    - **Reklamlar:** "Evet, reklam içeriyor".
@@ -57,9 +57,13 @@ Bu kimlikler hatırlanan değerlerdir; yalnızca geçiş ve ödüllü reklam kim
    - **İçerik derecelendirmesi:** Anketi doldur (şiddet, kumar vb. yok).
 7. **Hedef Android sürümü:** Google Play, 31 Ağustos 2026'dan beri yeni uygulamaların Android 16'yı (API 36) hedeflemesini istiyor. Uygulama buna göre ayarlandı (`targetSdk 36`).
 
-## 5. Ad çakışması
+## 5. Oyunun adı
 
-"Kelime Avı" adını içeren başka oyunlar mağazada var. Aynı adla yayınlamak reddedilme ya da karışıklık riski taşır. Yayından önce ayırt edici bir ek düşün (örnek: "Kelime Avı: Anadolu Yolculuğu"). Ad değişirse uygulama kimliği (`com.kelimeavi.oyun`) de **yayından önce** kesinleşmelidir; yayından sonra değiştirilemez.
+Mağazada "Kelime Avı" adını içeren başka oyunlar olduğu için ad **"Kelime Avı: Anadolu Yolculuğu"** olarak güncellendi. Telefonda simgenin altında kısa hâli ("Kelime Avı") yazar; mağaza sayfasında uzun hâli kullanılır. Hazır metinler: [`MAGAZA-METINLERI.md`](MAGAZA-METINLERI.md).
+
+Bu adın bir marka olarak tescilli olup olmadığı **kontrol edilmedi**. Yayından önce Play Store'da aynı adı arat ve mümkünse Türk Patent'in marka sorgusuna bak.
+
+Uygulama kimliği `com.kelimeavi.oyun` olarak kaldı. Yayından sonra değiştirilemez; değiştirmek istersen yayından **önce** söyle.
 
 ## 6. Yayından önce kontrol listesi
 

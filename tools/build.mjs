@@ -40,11 +40,7 @@ const fontCss = [
   face('Nunito', 'nunito-latin-ext-wght-normal.woff2', '200 1000', LATIN_EXT),
   face('Nunito', 'nunito-latin-wght-normal.woff2', '200 1000', LATIN),
 ].join('\n');
-const favicon =
-  'data:image/svg+xml,' +
-  encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="4" y="4" width="56" height="56" rx="14" fill="#1f4fa3"/><rect x="12" y="12" width="40" height="40" rx="9" fill="#fff8ec"/><text x="32" y="45" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="32" fill="#1f4fa3">K</text></svg>'
-  );
+const favicon = 'data:image/svg+xml;base64,' + readFileSync(join(ROOT, 'src', 'icon.svg')).toString('base64');
 const script = `<script>\n${scenesJs}\n${levels}\n${game}\n</script>`;
 
 const standalone = `<!doctype html>
@@ -53,8 +49,8 @@ const standalone = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#121838">
-<meta name="description" content="Kelime Avı: Türkiye'nin tarihî yerlerinde geçen, harfleri birleştirerek kelime bulduğun bulmaca oyunu.">
-<title>Kelime Avı</title>
+<meta name="description" content="Kelime Avı: Anadolu Yolculuğu. Türkiye'nin tarihî yerlerinde geçen, harfleri birleştirerek kelime bulduğun bulmaca oyunu.">
+<title>Kelime Avı: Anadolu Yolculuğu</title>
 <link rel="icon" href="${favicon}">
 <style>
 ${fontCss}

@@ -97,6 +97,13 @@ button.pill { border: 0; padding-right: 5px; }
   -webkit-text-stroke: 3px var(--cini-dark); paint-order: stroke fill; text-shadow: 0 5px 0 var(--cini-dark);
 }
 
+.logo-word { display: flex; align-items: center; gap: 6px; }
+.logo-lens { width: 0.74em; height: 0.74em; flex: none; margin-top: 0.06em; }
+.logo-sub {
+  margin-top: 6px; padding: 6px 16px 5px; border-radius: 999px; background: linear-gradient(var(--cini-2), var(--cini-dark));
+  border: 2px solid var(--altin); color: #fff; font: 800 13px/1 var(--font-display); letter-spacing: 0.16em; white-space: nowrap;
+}
+
 /* ---------- yükleme ---------- */
 .loading .col { justify-content: center; gap: 26px; }
 .loading .load { width: min(300px, 80%); display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40vh; }
@@ -348,6 +355,13 @@ button.pill { border: 0; padding-right: 5px; }
 .ad-btn em { display: inline-flex; align-items: center; gap: 3px; padding: 5px 9px 4px 5px; border-radius: 999px; background: rgba(8, 14, 48, 0.35); font: 800 15px/1 var(--font-body); font-style: normal; }
 .ad-btn em svg { width: 18px; height: 18px; }
 .ad-btn:disabled { opacity: 0.6; }
+.days { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.days li { padding: 6px 0 5px; border-radius: 9px; background: #fff; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+.days small { font: 800 9px/1 var(--font-body); }
+.days b { font: 800 14px/1 var(--font-body); color: var(--ink); }
+.days .past { background: #dff3e4; }
+.days .now { background: var(--altin); box-shadow: 0 2px 0 #c98a12; }
+.days .now small { color: #6b4a08; }
 /* Reklam alanı önizlemesi (yalnızca ?reklam=demo) */
 .ad-demo { display: none; position: fixed; left: 0; right: 0; bottom: 0; height: 60px; z-index: 5; background: #0b0e24; border-top: 1px solid rgba(255, 255, 255, 0.14); color: #9aa0bd; align-items: center; justify-content: center; flex-direction: column; gap: 3px; font: 800 13px/1 var(--font-body); letter-spacing: 0.14em; }
 .ad-demo small { font: 700 11px/1 var(--font-body); letter-spacing: 0.04em; opacity: 0.75; }

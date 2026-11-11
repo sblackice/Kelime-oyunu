@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f66c8"/><stop offset="1" stop-color="#14336e"/></linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf8"/><stop offset="1" stop-color="#f3e7d2"/></linearGradient>
+  </defs>
+  <rect x="0" y="0" width="108" height="108" fill="url(#bg)"/>
+  <!-- Selçuklu yıldızı (iki kare) -->
+  <g fill="#ffffff" opacity="0.08"><rect x="26" y="26" width="56" height="56" rx="3"/><rect x="26" y="26" width="56" height="56" rx="3" transform="rotate(45 54 54)"/></g>
+  <g transform="rotate(-7 50 50)">
+    <rect x="30" y="33" width="40" height="40" rx="9" fill="#c9b48e"/>
+    <rect x="30" y="30" width="40" height="40" rx="9" fill="url(#tile)"/>
+    <path d="M40 38h6.5v10l9.5-10h8.5l-11.5 11.5 12.5 13.5h-8.5l-10.5-11.5v11.5h-6.5z" fill="#1f4fa3"/>
+  </g>
+  <!-- büyüteç: kelime "avı" -->
+  <path d="M71.5 71.5l9 9" stroke="#14336e" stroke-width="9" stroke-linecap="round"/>
+  <path d="M71.5 71.5l9 9" stroke="#f1b434" stroke-width="5.5" stroke-linecap="round"/>
+  <circle cx="64" cy="64" r="11.5" fill="#bfe6ff" fill-opacity="0.55" stroke="#14336e" stroke-width="7"/>
+  <circle cx="64" cy="64" r="11.5" fill="none" stroke="#f1b434" stroke-width="4"/>
+  <path d="M57.5 61a7.5 7.5 0 0 1 6-4.5" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+</svg>

@@ -1,4 +1,4 @@
-# Kelime Avı – Tasarım Notları (sürüm 0.2)
+# Kelime Avı: Anadolu Yolculuğu – Tasarım Notları (sürüm 0.3)
 
 Bu belge, Kelime Avı'nın Words of Wonders'tan (WOW) **neleri aynen aldığını**, **neleri bilerek farklı yaptığını** ve WOW'da gözlenemediği için **hangi kararları bu projenin kendisinin verdiğini** açıklar.
 Gözlemlerin kaynağı: [`WOW-analiz-raporu.md`](WOW-analiz-raporu.md).
@@ -27,7 +27,7 @@ Gözlemlerin kaynağı: [`WOW-analiz-raporu.md`](WOW-analiz-raporu.md).
 
 | Konu | WOW | Kelime Avı |
 |---|---|---|
-| Ad ve logo | Words of Wonders | "KELİME" harf karoları + "AVI" |
+| Ad ve logo | Words of Wonders | "Kelime Avı: Anadolu Yolculuğu"; "KELİME" harf karoları + büyüteçli "AVI" + alt başlık şeridi. Simge: "K" karosu ve büyüteç |
 | Vurgu rengi | Mor | İznik çini mavisi, altın ve mercan kırmızısı |
 | Para birimi simgesi | Yeşil elmas | Turkuaz elmas |
 | Arka planlar | Dünya harikaları | Türkiye'nin tarihî yerleri (bu proje için çizildi) |
@@ -49,6 +49,8 @@ Aşağıdakiler WOW'da **görülmedi**. Oyunun eksiksiz çalışması için mant
 - **Titreşim ayarı** ve **ilerlemeyi sıfırlama** (onaylı).
 - **Son bölümden sonra:** "Bütün durakları gezdin!" ekranı ve "Baştan oyna".
 - **Seviyeler:** 12 durak 4 seviyeye ayrıldı (Çırak, Kalfa, Usta, Üstat). Her seviye sonunda +250 elmas.
+- **Günlük ödül:** Her gün ilk girişte 20, 30, 40, 50, 60, 80, 150 elmas (üst üste 1.–7. gün; gün atlanırsa baştan). İlk 3 bölümde gösterilmez.
+- **Hediyeyi ikiye katlama:** Reklam hazırsa hediye kutusunda "Reklam izle, 2 katını al" düğmesi çıkar.
 - **Bonus kelime:** Bulmacada yeri olmayan ama sözlükte bulunan kelime +5 elmas verir (bölüm başına her kelime bir kez).
 - **Bölüm numarası:** Oyun ekranının üstünde yazar.
 - **Android geri tuşu:** Açık pencereyi kapatır, oyundayken ana sayfaya döner, ana sayfadayken uygulamayı arka plana alır.
@@ -59,7 +61,7 @@ Aşağıdakiler WOW'da **görülmedi**. Oyunun eksiksiz çalışması için mant
 |---|---|
 | Mavi "W" jetonu | WOW'da ne işe yaradığı anlaşılamadı |
 | Uygulama içi satın alma | Mağaza hesabı, vergi/ödeme ayarları ve test süreci gerektirir |
-| Günlük bulmaca / görevler / günlük ödül | Öneri olarak sunuldu; henüz yapılmadı |
+| Günlük bulmaca / görevler | Öneri olarak sunuldu; henüz yapılmadı |
 | Arka plan müziği | WOW kaydında duyulmadı |
 | Gerçek reklamlar | Altyapı hazır; şu an Google'ın deneme reklamları çıkıyor. Bkz. [`PLAY-STORE-REHBERI.md`](PLAY-STORE-REHBERI.md) |
 

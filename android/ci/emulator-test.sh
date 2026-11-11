@@ -21,7 +21,7 @@ shot 01-acilis
 check "uygulama açıldı ve çalışıyor" alive
 
 # Kaydı 7. bölüme al (reklam şeridi 3. bölümden sonra görünür) ve yeniden yükle
-js "localStorage.setItem('kelime-avi:v1', JSON.stringify({v:1,level:7,completed:6,gems:0,tut:{first:true,hintShown:true,hintGiven:true,shuffle:true},cards:[]})); location.reload();"
+js "localStorage.setItem('kelime-avi:v1', JSON.stringify({v:1,level:7,completed:6,gems:0,tut:{first:true,hintShown:true,hintGiven:true,shuffle:true},cards:[],daily:{day:(function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})(),streak:1}})); location.reload();"
 sleep 15
 shot 02-ana-ekran-reklam-seridi
 js "console.log('KA-DURUM ' + JSON.stringify({ekran: __kelimeAvi.screen(), bolum: __kelimeAvi.state().level, reklamAcik: __kelimeAvi.ads.enabled, bolumSayisi: LEVELS.length, en: innerWidth, boy: innerHeight}));"
@@ -43,8 +43,24 @@ sleep 4
 shot 06-geri-tusu-sonrasi
 check "reklam denemesinden sonra uygulama çalışıyor" alive
 
+# Bölümü bitir, sonraki bölüme geçerken tam ekran (geçiş) reklamı dene
+js "(function(){var w=__kelimeAvi.level().words.map(function(x){return x.w}),i=0;(function next(){if(i>=w.length)return;Array.from(w[i++]).forEach(function(c){document.dispatchEvent(new KeyboardEvent('keydown',{key:c}))});document.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}));setTimeout(next,1200)})()})();"
+sleep 14
+shot 07-tebrikler
+js "__kelimeAvi.ads.testClock(200000); console.log('KA-GECIS ekran=' + __kelimeAvi.screen() + ' tamamlanan=' + __kelimeAvi.state().completed); document.querySelector('#btn-next').click();"
+sleep 8
+shot 08-gecis-reklami
+adb shell input keyevent KEYCODE_BACK
+sleep 5
+js "console.log('KA-SONRA ekran=' + __kelimeAvi.screen() + ' bolum=' + __kelimeAvi.state().level);"
+sleep 2
+shot 09-sonraki-bolum
+check "geçiş reklamı denemesinden sonra uygulama çalışıyor" alive
+
 adb logcat -d > "$OUT/logcat.txt"
-grep -E "KA-DURUM|KA-ODULLU|KelimeAviAds" "$OUT/logcat.txt" | sed 's/^/  günlük: /' | tail -30
-check "çökme (FATAL EXCEPTION) yok" "! grep -A3 'FATAL EXCEPTION' '$OUT/logcat.txt' | grep -q '$PKG'"
-check "oyun durumu okundu (7. bölüm, reklam köprüsü açık)" "grep -q 'KA-DURUM.*\"bolum\":7,\"reklamAcik\":true' '$OUT/logcat.txt'"
+grep -aE "KA-DURUM|KA-ODULLU|KA-GECIS|KA-SONRA|KelimeAviAds" "$OUT/logcat.txt" | sed 's/^/  günlük: /' | tail -30
+check "çökme (FATAL EXCEPTION) yok" "! grep -a -A3 'FATAL EXCEPTION' '$OUT/logcat.txt' | grep -q '$PKG'"
+check "oyun durumu okundu (7. bölüm, reklam köprüsü açık)" "grep -aq 'KA-DURUM.*\"bolum\":7,\"reklamAcik\":true' '$OUT/logcat.txt'"
+check "bölüm bitti ve tebrik ekranı açıldı" "grep -aq 'KA-GECIS ekran=complete tamamlanan=7' '$OUT/logcat.txt'"
+check "reklamdan sonra 8. bölüm açıldı" "grep -aq 'KA-SONRA ekran=game bolum=8' '$OUT/logcat.txt'"
 exit $fail

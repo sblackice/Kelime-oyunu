@@ -1,6 +1,6 @@
 {
   "name": "kelime-avi",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Kelime Avı: Türkiye'nin tarihî yerlerinde geçen harf birleştirme bulmaca oyunu",
   "type": "module",

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="54" android:startY="0" android:endX="54" android:endY="108"
+                android:startColor="#FF2F66C8" android:endColor="#FF14336E" />
+        </aapt:attr>
+    </path>
+    <!-- Selçuklu yıldızı -->
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.08"
+        android:pathData="M29,26h50a3,3 0 0 1 3,3v50a3,3 0 0 1 -3,3h-50a3,3 0 0 1 -3,-3v-50a3,3 0 0 1 3,-3z" />
+    <group android:rotation="45" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.08"
+            android:pathData="M29,26h50a3,3 0 0 1 3,3v50a3,3 0 0 1 -3,3h-50a3,3 0 0 1 -3,-3v-50a3,3 0 0 1 3,-3z" />
+    </group>
+</vector>

@@ -20,7 +20,8 @@
   const INTER_EVERY = 3;      // en sık 3 bölümde bir
   const INTER_MIN_GAP = 120e3; // iki tam ekran reklam arasında en az 2 dakika
   const STORE_KEY = 'kelime-avi:v1';
-  const VERSION = '0.2';
+  const DAILY_GEMS = [20, 30, 40, 50, 60, 80, 150]; // günlük ödül: üst üste girilen 1.–7. gün
+  const VERSION = '0.3';
 
   // ---------- yardımcılar ----------
   const $ = (s, el = document) => el.querySelector(s);
@@ -36,7 +37,7 @@
 
   // ---------- durum ----------
   function defaultState() {
-    return { v: 1, level: 1, completed: 0, gems: START_GEMS, bonus: 0, freeHints: 0, tut: {}, cards: [], sound: true, haptics: true, cur: null, updatedAt: 0 };
+    return { v: 1, level: 1, completed: 0, gems: START_GEMS, bonus: 0, daily: { day: '', streak: 0 }, freeHints: 0, tut: {}, cards: [], sound: true, haptics: true, cur: null, updatedAt: 0 };
   }
   function sanitize(d) {
     const s = defaultState();
@@ -46,6 +47,7 @@
     s.completed = num(d.completed, 0, 0, 1e7);
     s.gems = num(d.gems, START_GEMS, 0, 1e7);
     s.bonus = num(d.bonus, 0, 0, 1e7);
+    if (d.daily && typeof d.daily.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d.daily.day)) s.daily = { day: d.daily.day, streak: num(d.daily.streak, 1, 1, DAILY_GEMS.length) };
     s.freeHints = num(d.freeHints, 0, 0, 99);
     s.tut = d.tut && typeof d.tut === 'object' ? { ...d.tut } : {};
     s.cards = Array.isArray(d.cards) ? d.cards.filter((c) => LOCATIONS.some((l) => l.id === c)) : [];
@@ -317,6 +319,29 @@
     setBackground('kizkulesi');
     renderHome();
     showScreen('home');
+    maybeDaily();
+  }
+
+  // ---------- günlük ödül ----------
+  const dayStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const today = () => dayStr(new Date());
+  // Günde bir kez, ana ekrana gelince verilir. Dün de alındıysa seri 1 artar (7'den sonra 1'e döner);
+  // gün atlandıysa seri baştan başlar. İlk 3 bölümde (oyun öğrenilirken) gösterilmez.
+  function maybeDaily() {
+    if (S.completed < AD_FREE_LEVELS || S.daily.day === today()) return;
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const streak = S.daily.day === dayStr(y) ? (S.daily.streak % DAILY_GEMS.length) + 1 : 1;
+    const reward = DAILY_GEMS[streak - 1];
+    const before = S.gems;
+    S.daily = { day: today(), streak };
+    S.gems += reward;
+    save();
+    setTimeout(() => {
+      if (screen !== 'home' || !$('#modal').hidden) { shownGems = S.gems; updateGems(false); return; }
+      shownGems = before;
+      updateGems(false);
+      dailyModal(streak, reward).then(() => { shownGems = S.gems; updateGems(true); });
+    }, T(450));
   }
 
   // ---------- bölüm ----------
@@ -859,7 +884,8 @@
     if (info.giftNow) {
       const gi = $('#gift-icon'); gi.classList.remove('bounce'); void gi.offsetWidth; gi.classList.add('bounce');
       await giftModal();
-      shownGems = info.prevGems + GIFT_GEMS;
+      shownGems = Math.min(S.gems, info.prevGems + GIFT_GEMS * 2);
+      if (!info.tierNow) shownGems = S.gems;
       updateGems(true);
       fills[0].style.transition = 'none';
       setBar('#gift-fill', '#gift-text', 0, GIFT_EVERY);
@@ -939,11 +965,36 @@
 
   function giftModal() {
     Sound.gift();
+    // Reklam hazırsa oyuncu isterse izleyip hediyeyi ikiye katlar
+    const x2 = Ads.enabled && Ads.rewardedReady();
     return openModal(
       `<div class="eyebrow">${GIFT_EVERY} BÖLÜM TAMAM</div><h2>Hediye kutusu!</h2>
        <svg class="gift-big" aria-hidden="true"><use href="#i-gift"/></svg>
        <div class="reward"><svg aria-hidden="true"><use href="#i-gem"/></svg>+${GIFT_GEMS}</div>
-       <button class="btn-blue" data-close data-focus>AL</button>`
+       <div class="stack"><button class="btn-blue" data-close data-focus>AL</button>
+       ${x2 ? `<button class="btn-plain ad-btn" id="gift-x2"><svg aria-hidden="true"><use href="#i-play"/></svg><span>Reklam izle, 2 katını al</span></button>` : ''}</div>`,
+      (m) => {
+        const b = $('#gift-x2', m);
+        if (!b) return;
+        b.addEventListener('click', async () => {
+          b.disabled = true;
+          const earned = await Ads.rewarded();
+          if (earned) { S.gems += GIFT_GEMS; save(); Sound.gift(); toast(`Hediye ikiye katlandı: +${GIFT_GEMS * 2} elmas`); }
+          if (b.isConnected) closeModal();
+        });
+      }
+    );
+  }
+
+  function dailyModal(streak, reward) {
+    Sound.gift();
+    const days = DAILY_GEMS.map((g, i) => `<li class="${i + 1 < streak ? 'past' : i + 1 === streak ? 'now' : ''}"><small>${i + 1}. gün</small><b>${g}</b></li>`).join('');
+    return openModal(
+      `<div class="eyebrow">GÜNLÜK ÖDÜL</div><h2>Hoş geldin!</h2>
+       <ul class="days">${days}</ul>
+       <div class="reward"><svg aria-hidden="true"><use href="#i-gem"/></svg>+${reward}</div>
+       <p>Her gün gir, ödül büyüsün. Bir gün atlarsan seri baştan başlar.</p>
+       <div class="stack" style="margin-top:14px"><button class="btn-blue" data-close data-focus>AL</button></div>`
     );
   }
 
@@ -992,6 +1043,7 @@
        <div class="stack" style="margin-top:14px">${adRow}</div>
        <ul class="ways">
          <li><b>Bonus kelime</b> Bulmacada yeri olmayan her doğru kelime +${BONUS_GEMS} elmas</li>
+         <li><b>Günlük ödül</b> Her gün ilk girişte ${DAILY_GEMS[0]}–${DAILY_GEMS[DAILY_GEMS.length - 1]} elmas</li>
          <li><b>Hediye kutusu</b> Her ${GIFT_EVERY} bölümde +${GIFT_GEMS} elmas</li>
          <li><b>Seviye ödülü</b> Bir seviye bitince +${TIER_GEMS} elmas</li>
        </ul>`,
@@ -1059,7 +1111,7 @@
            <div class="row"><button class="btn-plain" id="set-cancel">Vazgeç</button><button class="btn-danger" id="set-do-reset">Sıfırla</button></div></div>
        </div>
        ${Ads.privacyRequired() ? '<button class="btn-plain" id="set-privacy" style="margin-top:10px">Reklam gizlilik ayarları</button>' : ''}
-       <div class="small">Kelime Avı · sürüm ${VERSION} · ${LEVELS.length} bölüm<br>Kelimeler, bölümler ve çizimler bu oyuna özgüdür.</div>`,
+       <div class="small">Kelime Avı: Anadolu Yolculuğu · sürüm ${VERSION} · ${LEVELS.length} bölüm<br>Kelimeler, bölümler ve çizimler bu oyuna özgüdür.</div>`,
       (m) => {
         $('#set-sound', m).addEventListener('click', (e) => { S.sound = !S.sound; e.currentTarget.setAttribute('aria-checked', String(S.sound)); save(); if (S.sound) Sound.click(); });
         $('#set-haptics', m).addEventListener('click', (e) => { S.haptics = !S.haptics; e.currentTarget.setAttribute('aria-checked', String(S.haptics)); save(); buzz(20); });
@@ -1164,5 +1216,5 @@
   }
 
   // Android katmanı ve testler için küçük bir pencere (oyun mantığını değiştirmez)
-  window.__kelimeAvi = { state: () => S, level: () => L, screen: () => screen, back, ads: Ads };
+  window.__kelimeAvi = { state: () => S, level: () => L, screen: () => screen, back, ads: Ads, today };
 })();

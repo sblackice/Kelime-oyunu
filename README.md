@@ -1,14 +1,14 @@
-# Kelime Avı
+# Kelime Avı: Anadolu Yolculuğu
 
 Türkiye'nin tarihî yerlerinde geçen, harfleri birleştirerek kelime bulduğun bir bulmaca oyunu.
 Oyun mantığı **Words of Wonders (WOW) – Kelime Oyunu** uygulamasıyla aynıdır. Ad, logo, renkler, çizimler, sesler, kelimeler ve bölümler bu projeye özgüdür.
 
-- **Sürüm:** 0.2
+- **Sürüm:** 0.3
 - **Bölüm sayısı:** 240 bölüm, 12 durak (her durakta 20 bölüm), 4 seviye
 - **Seviyeler:** Çırak (3–4 harf) · Kalfa (5 harf) · Usta (6 harf) · Üstat (7 harf)
 - **Duraklar:** Kapadokya · Efes Antik Kenti · Ayasofya · Pamukkale · Nemrut Dağı · Galata Kulesi · Sümela Manastırı · Göbeklitepe · Truva · Bodrum Kalesi · Safranbolu Evleri · İshak Paşa Sarayı
 - **Ana ekran:** Kız Kulesi
-- **Reklam ve Google Play:** [`docs/PLAY-STORE-REHBERI.md`](docs/PLAY-STORE-REHBERI.md)
+- **Reklam ve Google Play:** [`docs/PLAY-STORE-REHBERI.md`](docs/PLAY-STORE-REHBERI.md) · mağaza metinleri: [`docs/MAGAZA-METINLERI.md`](docs/MAGAZA-METINLERI.md) · mağaza görselleri: `store/`
 
 ## İndir (Android)
 
@@ -26,7 +26,8 @@ APK her güncellemede GitHub Actions tarafından otomatik derlenir ve bir Androi
 6. Ortadaki çapraz ok düğmesi harflerin yerini **karıştırır** (ücretsiz).
 7. Bulmacada yeri olmayan ama doğru olan bir kelime bulursan **bonus kelime** sayılır: +5 elmas.
 8. 8 bölümde bir **hediye kutusu** (+100 elmas) açılır. Her durağın 20 bölümü bitince o yerin **kartı**, her seviyenin 3 durağı bitince **seviye ödülü** (+250 elmas) kazanılır.
-9. Ana ekrandaki seviye kutusuna dokununca **Seviyeler** penceresi açılır: hangi durakta olduğunu ve kalanları gösterir.
+9. Her gün ilk girişte **günlük ödül** verilir (20–150 elmas; üst üste girdikçe büyür).
+10. Ana ekrandaki seviye kutusuna dokununca **Seviyeler** penceresi açılır: hangi durakta olduğunu ve kalanları gösterir.
 
 Bilgisayarda klavyeyle de oynanabilir: harfleri yaz, **Enter** ile gönder, **Backspace** ile son harfi sil.
 
@@ -44,6 +45,8 @@ Bilgisayarda klavyeyle de oynanabilir: harfleri yaz, **Enter** ile gönder, **Ba
 | `tools/suggest-levels.mjs` | Sözlükten bölüm önerir ve `level-source.mjs` dosyasını yazar (elle çalıştırılır) |
 | `tools/generate-levels.mjs` | Bölümleri doğrular, bulmaca yerleşimini otomatik hesaplar |
 | `android/` | Android uygulama kabuğu; `ads.properties` reklam kimlikleri |
+| `src/icon.svg` | Uygulama simgesinin kaynağı |
+| `tools/build-store.mjs`, `store/` | Mağaza görsellerini üretir (simge, öne çıkan görsel, ekran görüntüleri) |
 | `tools/build-scenes.mjs` | Tarihî yer çizimlerini (SVG) üretir |
 | `tools/build.mjs` | Her şeyi `dist/` içindeki tek dosyada birleştirir |
 | `tools/test-e2e.mjs` | 240 bölümü tarayıcıda baştan sona oynayan otomatik test (yaklaşık 8 dakika) |

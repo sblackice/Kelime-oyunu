@@ -242,6 +242,16 @@ async function finishComplete(page, expect) {
   check(await page.evaluate(() => window.__kelimeAvi.back()) === true, 'oyunda geri tuşu işlendi');
   await waitScreen(page, 'home');
   check((await page.textContent('#btn-play')) === 'BÖLÜM 4', 'geri tuşu ana sayfaya döndürdü, bölüm korundu');
+  await sleep(900);
+  check(/GÜNLÜK ÖDÜL/.test(await page.textContent('#modal')) && await page.isVisible('#modal'), '3 bölümden sonra ana ekranda günlük ödül çıktı');
+  await shot(page, '09b-gunluk-odul');
+  const sd = await st(page);
+  check(sd.gems === g4 + 5 + 20 && sd.daily.streak === 1, 'günlük ödül: 1. gün +20 elmas');
+  await page.click('#modal [data-close]');
+  await page.evaluate(() => window.__kelimeAvi.back());
+  await page.click('#btn-play'); await waitScreen(page, 'game');
+  await page.evaluate(() => window.__kelimeAvi.back()); await waitScreen(page, 'home'); await sleep(700);
+  check(await page.isHidden('#modal') && (await st(page)).gems === g4 + 25, 'günlük ödül aynı gün ikinci kez verilmedi');
   await page.click('#btn-play');
   await waitScreen(page, 'game');
   await sleep(400);
@@ -279,7 +289,7 @@ async function finishComplete(page, expect) {
   await sleep(400);
   await page.click('#btn-hint'); await sleep(250);
   await page.click('#btn-hint'); await sleep(250);
-  check((await st(page)).gems === 5, 'iki ücretli ipucundan sonra elmas 5 (bonus kelimeden)');
+  check((await st(page)).gems === 25, 'iki ücretli ipucundan sonra elmas 25 (bonus kelime + günlük ödül)');
   await page.click('#btn-hint'); await sleep(350);
   check(/Elmasın bitti/.test(await page.textContent('#modal')), 'elmas yetmeyince "Elmasın bitti" penceresi çıktı');
   check((await page.$('#gem-ad')) === null, 'reklamsız sürümde "reklam izle" düğmesi yok');
@@ -337,8 +347,8 @@ async function finishComplete(page, expect) {
   const fin = await st(page);
   check(fin.completed === N && fin.level === N + 1, `${N} bölüm tamamlandı`);
   check(fin.cards.length === META.locs.length, `${META.locs.length} kartın hepsi açıldı`);
-  const expGems = 5 + range(8).length * 100 + META.tiers.length * 250;
-  check(fin.gems === expGems, `elmas: 5 + ${range(8).length} hediye × 100 + ${META.tiers.length} seviye × 250 = ${expGems} (${fin.gems})`);
+  const expGems = 25 + range(8).length * 100 + META.tiers.length * 250;
+  check(fin.gems === expGems, `elmas: 25 + ${range(8).length} hediye × 100 + ${META.tiers.length} seviye × 250 = ${expGems} (${fin.gems})`);
   await shot(page, '20-son-tebrikler');
   await page.click('#btn-next');
   await waitScreen(page, 'end');
@@ -379,11 +389,11 @@ async function finishComplete(page, expect) {
   check(rs.completed === 0 && rs.gems === 200 && rs.cards.length === 0 && rs.sound === false, 'sıfırlama ilerlemeyi sildi, ses ayarını korudu');
 
   console.log('Eski kayıttan geçiş');
-  await page.evaluate(() => localStorage.setItem('kelime-avi:v1', JSON.stringify({ v: 1, level: 9, completed: 8, gems: 150, tut: { first: true }, cards: ['kapadokya', 'efes'], cur: { n: 9, found: ['BALIK', 'BAL'], rev: [], order: [0, 1, 2, 3, 4] } })));
+  await page.evaluate(() => localStorage.setItem('kelime-avi:v1', JSON.stringify({ v: 1, level: 9, completed: 8, gems: 150, tut: { first: true }, cards: ['kapadokya', 'efes'], daily: { day: window.__kelimeAvi.today(), streak: 6 }, cur: { n: 9, found: ['BALIK', 'BAL'], rev: [], order: [0, 1, 2, 3, 4] } })));
   await page.reload();
   await waitScreen(page, 'home');
   const mg = await st(page);
-  check(mg.level === 9 && mg.gems === 150 && mg.cur === null, 'eski sürüm kaydı açıldı; uyuşmayan yarım bölüm güvenle sıfırlandı');
+  check(mg.level === 9 && mg.gems === 150 && mg.cur === null && mg.daily.streak === 6, 'eski sürüm kaydı açıldı; uyuşmayan yarım bölüm güvenle sıfırlandı');
   await page.click('#btn-play');
   await waitScreen(page, 'game');
   check((await page.$$eval('.cell.found', (e) => e.length)) === 0, 'geçiş sonrası bölüm temiz başladı');
@@ -392,7 +402,7 @@ async function finishComplete(page, expect) {
   {
     const pa = await ctx.newPage();
     pa.on('pageerror', (e) => errors.push(e.message));
-    const seed = (level, gems) => pa.evaluate(([level, gems]) => localStorage.setItem('kelime-avi:v1', JSON.stringify({ v: 1, level, completed: level - 1, gems, tut: { first: true, hintShown: true, hintGiven: true, shuffle: true }, cards: [] })), [level, gems]);
+    const seed = (level, gems) => pa.evaluate(([level, gems]) => localStorage.setItem('kelime-avi:v1', JSON.stringify({ v: 1, level, completed: level - 1, gems, tut: { first: true, hintShown: true, hintGiven: true, shuffle: true }, cards: [], daily: { day: window.__kelimeAvi.today(), streak: 1 } })), [level, gems]);
     const bannerOn = () => pa.evaluate(() => getComputedStyle(document.querySelector('#ad-demo')).display !== 'none');
     await pa.goto(FILE + '?reklam=demo');
     await waitScreen(pa, 'home');
@@ -457,6 +467,27 @@ async function finishComplete(page, expect) {
     await pa.click('#btn-next');
     await sleep(400);
     check(!(await pa.isVisible('#ad-full')), 'art arda bölümlerde reklam çıkmıyor (en sık 3 bölümde bir)');
+    // hediye kutusunu reklamla ikiye katlama: 8. bölüm bitince hediye çıkar
+    const dstr = (off) => pa.evaluate((off) => { const d = new Date(); d.setDate(d.getDate() + off); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }, off);
+    await seed(8, 0);
+    await pa.reload(); await waitScreen(pa, 'home');
+    await pa.click('#btn-play'); await waitScreen(pa, 'game'); await sleep(400);
+    await solveRemaining(pa);
+    await waitScreen(pa, 'complete', 10000);
+    await pa.waitForSelector('#gift-x2', { timeout: 8000 });
+    await shot(pa, '30-hediye-iki-kati');
+    await pa.click('#gift-x2'); await sleep(300);
+    await pa.click('#ad-full-close'); await sleep(400);
+    check((await st(pa)).gems === 200, 'hediye kutusu reklamla ikiye katlandı (+200 elmas)');
+    // günlük seri: dün alındıysa 2. gün, gün atlandıysa 1. gün
+    for (const [off, streak0, expStreak, expGems, msg] of [[-1, 1, 2, 30, 'dün girildiyse seri 2. güne çıkıyor (+30)'], [-3, 4, 1, 20, 'gün atlanınca seri baştan başlıyor (+20)'], [-1, 7, 1, 20, '7. günden sonra seri 1. güne dönüyor (+20)']]) {
+      const day = await dstr(off);
+      await pa.evaluate(([day, streak0]) => localStorage.setItem('kelime-avi:v1', JSON.stringify({ v: 1, level: 10, completed: 9, gems: 0, tut: { first: true }, cards: [], daily: { day, streak: streak0 } })), [day, streak0]);
+      await pa.reload(); await waitScreen(pa, 'home'); await sleep(900);
+      const sx = await st(pa);
+      check(sx.daily.streak === expStreak && sx.gems === expGems && await pa.isVisible('#modal'), 'günlük ödül: ' + msg);
+      if (off === -1 && streak0 === 1) await shot(pa, '31-gunluk-odul-2-gun');
+    }
     await pa.close();
   }
 
@@ -472,7 +503,7 @@ async function finishComplete(page, expect) {
     await p2.goto(FILE + '?reklam=demo');
     await p2.waitForFunction(() => window.__kelimeAvi && window.__kelimeAvi.screen() === 'home');
     for (const lvl of big) {
-      await p2.evaluate((lvl) => { localStorage.setItem('kelime-avi:v1', JSON.stringify({ v: 1, level: lvl, completed: lvl - 1, gems: 300, tut: { first: true, hintShown: true, hintGiven: true, shuffle: true }, cards: [] })); }, lvl);
+      await p2.evaluate((lvl) => { localStorage.setItem('kelime-avi:v1', JSON.stringify({ v: 1, level: lvl, completed: lvl - 1, gems: 300, tut: { first: true, hintShown: true, hintGiven: true, shuffle: true }, cards: [], daily: { day: window.__kelimeAvi.today(), streak: 1 } })); }, lvl);
       await p2.reload();
       await p2.waitForFunction(() => window.__kelimeAvi.screen() === 'home');
       await p2.click('#btn-play');

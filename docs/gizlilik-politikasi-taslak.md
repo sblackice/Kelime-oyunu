@@ -1,4 +1,4 @@
-# Kelime Avı – Gizlilik Politikası (TASLAK)
+# Kelime Avı: Anadolu Yolculuğu – Gizlilik Politikası (TASLAK)
 
 > **Bu bir taslaktır, hukuki tavsiye değildir.** Yayınlamadan önce köşeli parantezli yerleri doldur
 > ve mümkünse bir uzmana göster. Metin, uygulamanın bugünkü hâline göre yazıldı.

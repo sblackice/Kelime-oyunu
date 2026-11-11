@@ -15,7 +15,7 @@ android {
         minSdk 26
         targetSdk 36          // Google Play şartı (31 Ağustos 2026'dan beri): Android 16 / API 36
         versionCode((project.findProperty('versionCode') ?: '1').toString().toInteger())
-        versionName '0.2.' + (project.findProperty('versionCode') ?: '1')
+        versionName '0.3.' + (project.findProperty('versionCode') ?: '1')
 
         manifestPlaceholders = [admobAppId: adProps.getProperty('admobAppId')]
         buildConfigField 'boolean', 'ADS_ENABLED', adProps.getProperty('adsEnabled', 'true')
