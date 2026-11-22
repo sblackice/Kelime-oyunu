@@ -38,12 +38,20 @@ shot 04-elmas-penceresi
 js "console.log('KA-ODULLU hazir=' + __kelimeAvi.ads.rewardedReady()); var b=document.querySelector('#gem-ad'); if(b) b.click();"
 sleep 12
 shot 05-odullu-reklam
+js "console.log('KA-GERI-ONCE ' + 'modal=' + !document.querySelector('#modal').hidden + ' reklam=' + !!document.querySelector('#ad-full') + ' ekran=' + __kelimeAvi.screen() + ' elmas=' + __kelimeAvi.state().gems);"
+sleep 2
 adb shell input keyevent KEYCODE_BACK
 sleep 4
+js "console.log('KA-GERI-SONRA ' + 'modal=' + !document.querySelector('#modal').hidden + ' reklam=' + !!document.querySelector('#ad-full') + ' ekran=' + __kelimeAvi.screen() + ' elmas=' + __kelimeAvi.state().gems);"
+sleep 2
 shot 06-geri-tusu-sonrasi
 check "reklam denemesinden sonra uygulama çalışıyor" alive
 
-# Bölümü bitir, sonraki bölüme geçerken tam ekran (geçiş) reklamı dene
+# Bölümü bitir, sonraki bölüme geçerken tam ekran (geçiş) reklamı dene.
+# Önceki adımda pencere açık kaldıysa (ör. ödüllü reklam yüklenemediyse) önce kapat; yukarıdaki
+# KA-GERI satırları geri tuşunun ne yaptığını ayrıca kaydeder.
+js "if(!document.querySelector('#modal').hidden){console.log('KA-UYARI pencere hâlâ açıktı, kapatılıyor');document.querySelector('#modal [data-close]')&&document.querySelector('#modal [data-close]').click()}"
+sleep 2
 js "(function(){var w=__kelimeAvi.level().words.map(function(x){return x.w}),i=0;(function next(){if(i>=w.length)return;Array.from(w[i++]).forEach(function(c){document.dispatchEvent(new KeyboardEvent('keydown',{key:c}))});document.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}));setTimeout(next,1200)})()})();"
 sleep 14
 shot 07-tebrikler
@@ -58,9 +66,10 @@ shot 09-sonraki-bolum
 check "geçiş reklamı denemesinden sonra uygulama çalışıyor" alive
 
 adb logcat -d > "$OUT/logcat.txt"
-grep -aE "KA-DURUM|KA-ODULLU|KA-GECIS|KA-SONRA|KelimeAviAds" "$OUT/logcat.txt" | sed 's/^/  günlük: /' | tail -30
+grep -aE "KA-[A-Z-]+ |KelimeAviAds" "$OUT/logcat.txt" | sed 's/^/  günlük: /' | tail -30
 check "çökme (FATAL EXCEPTION) yok" "! grep -a -A3 'FATAL EXCEPTION' '$OUT/logcat.txt' | grep -q '$PKG'"
 check "oyun durumu okundu (7. bölüm, reklam köprüsü açık)" "grep -aq 'KA-DURUM.*\"bolum\":7,\"reklamAcik\":true' '$OUT/logcat.txt'"
+check "geri tuşu açık pencereyi kapattı" "grep -aq \"KA-GERI-SONRA modal=false\" '$OUT/logcat.txt'"
 check "bölüm bitti ve tebrik ekranı açıldı" "grep -aq 'KA-GECIS ekran=complete tamamlanan=7' '$OUT/logcat.txt'"
 check "reklamdan sonra 8. bölüm açıldı" "grep -aq 'KA-SONRA ekran=game bolum=8' '$OUT/logcat.txt'"
 exit $fail
