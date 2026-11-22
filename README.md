@@ -53,6 +53,10 @@ Bilgisayarda klavyeyle de oynanabilir: harfleri yaz, **Enter** ile gönder, **Ba
 | `docs/WOW-analiz-raporu.md` | Words of Wonders analiz raporu |
 | `docs/TASARIM-NOTLARI.md` | Nelerin WOW ile aynı, nelerin farklı olduğu ve bölüm listesi |
 
+## Kaynak projeyi ZIP olarak almak
+
+`bash tools/kaynak-zip.sh` komutu düzenlenebilir kaynak projeyi `dist-kaynak/` klasörüne ZIP olarak paketler. İmza anahtarları, parolalar, `.env` dosyaları, derleme çıktıları ve önbellekler ZIP'e girmez; araç bunu paketledikten sonra ayrıca denetler. Derleme adımları: [`DERLEME.md`](DERLEME.md).
+
 ## Geliştirici komutları
 
 Gerekli: [Node.js](https://nodejs.org) 18 veya üstü.

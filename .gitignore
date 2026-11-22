@@ -2,3 +2,7 @@ node_modules/
 test-output/
 .DS_Store
 tools/sozluk/
+*.jks
+.env
+.env.*
+dist-kaynak/

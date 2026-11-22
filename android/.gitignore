@@ -3,3 +3,5 @@ build/
 app/build/
 app/src/main/assets/
 local.properties
+imza.properties
+*.jks

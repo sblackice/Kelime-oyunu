@@ -41,6 +41,13 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk ../kelime-avi-debug.apk
           ls -la ../*.apk app/build/outputs/bundle/release/
 
+      # Yeni APK eski sürümün üzerine kurulabilsin: imza her zaman aynı test anahtarı olmalı
+      - name: İmzayı denetle
+        run: |
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
+          "$APKSIGNER" verify --print-certs kelime-avi.apk | tee imza.txt
+          grep -qi "SHA-256 digest: d0f6ab185310f7c85ab29c2ce3e47c83d3def461c3473e260c487dd09311549e" imza.txt
+
       - uses: actions/upload-artifact@v4
         with:
           name: kelime-avi-apk
@@ -86,3 +93,43 @@ jobs:
             --title "Kelime Avı $TAG" \
             --latest \
             --notes "Kelime Avı: Anadolu Yolculuğu – Android için test sürümü (240 bölüm, 4 seviye, 12 durak). Reklamlar Google'ın DENEME reklamlarıdır. Kurulum: kelime-avi.apk dosyasını indir, aç ve 'Bilinmeyen uygulamaları yükle' iznini bu kez ver. emulator-ekranlar.zip: uygulamanın Android emülatöründe otomatik denenirken alınan ekran görüntüleri."
+
+  # Kaynak ZIP'i: imza anahtarı olmadan, boş bir klasörden derlenebiliyor mu?
+  kaynak-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: ZIP'i oluştur
+        run: bash tools/kaynak-zip.sh kelime-avi-kaynak.zip
+
+      - name: ZIP'i boş klasörde aç ve derle
+        run: |
+          mkdir -p "$RUNNER_TEMP/zip-deneme"
+          cd "$RUNNER_TEMP/zip-deneme"
+          unzip -q "$GITHUB_WORKSPACE/kelime-avi-kaynak.zip"
+          test ! -e android/app/kelime-avi-test.keystore
+          test ! -e android/app/test-imza.properties
+          node tools/generate-levels.mjs --quiet
+          node tools/build-scenes.mjs
+          node tools/build.mjs
+          mkdir -p android/app/src/main/assets
+          cp dist/kelime-avi.html android/app/src/main/assets/index.html
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease bundleRelease
+          ls -la app/build/outputs/apk/release/ app/build/outputs/bundle/release/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kelime-avi-kaynak
+          path: kelime-avi-kaynak.zip

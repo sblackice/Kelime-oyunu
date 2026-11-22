@@ -28,23 +28,40 @@ android {
         buildConfig true
     }
 
-    // İmza: KELIMEAVI_KEYSTORE ortam değişkeni verilirse o (gizli) anahtar kullanılır.
-    // Verilmezse yalnızca test dağıtımı için olan, depodaki açık anahtar kullanılır.
-    // Google Play'e yüklenecek sürüm mutlaka gizli anahtarla imzalanmalıdır.
+    // ---------- İmza ----------
+    // Hiçbir parola bu dosyaya yazılmaz. Öncelik sırası:
+    //  1) Yayın (Google Play) anahtarı: android/imza.properties dosyası (örnek: imza.properties.example)
+    //     ya da KELIMEAVI_KEYSTORE, KELIMEAVI_KEYSTORE_PASSWORD, KELIMEAVI_KEY_ALIAS, KELIMEAVI_KEY_PASSWORD ortam değişkenleri.
+    //  2) Test anahtarı: app/test-imza.properties + app/kelime-avi-test.keystore (yalnızca GitHub deposunda;
+    //     kaynak ZIP'ine konmaz). Herkese açık bir anahtardır, Google Play için kullanılamaz.
+    //  3) Hiçbiri yoksa: Android'in bu bilgisayarda kendiliğinden oluşturduğu hata ayıklama (debug) anahtarı.
+    def uploadProps = new Properties()
+    def uploadFile = rootProject.file('imza.properties')
+    if (uploadFile.exists()) uploadFile.withInputStream { uploadProps.load(it) }
+    def upload = { String key, String env -> uploadProps.getProperty(key) ?: System.getenv(env) }
+    def uploadStore = upload('storeFile', 'KELIMEAVI_KEYSTORE')
+    def hasUpload = uploadStore != null && !uploadStore.isEmpty()
+
+    def testProps = new Properties()
+    def testFile = file('test-imza.properties')
+    if (testFile.exists()) testFile.withInputStream { testProps.load(it) }
+    def hasTest = testFile.exists() && file(testProps.getProperty('storeFile', 'yok')).exists()
+
     signingConfigs {
-        test {
-            storeFile file('kelime-avi-test.keystore')
-            storePassword 'kelimeavi-test'
-            keyAlias 'kelimeavi'
-            keyPassword 'kelimeavi-test'
+        if (hasUpload) {
+            upload {
+                storeFile rootProject.file(uploadStore)
+                storePassword upload('storePassword', 'KELIMEAVI_KEYSTORE_PASSWORD')
+                keyAlias upload('keyAlias', 'KELIMEAVI_KEY_ALIAS')
+                keyPassword upload('keyPassword', 'KELIMEAVI_KEY_PASSWORD')
+            }
         }
-        upload {
-            def ks = System.getenv('KELIMEAVI_KEYSTORE')
-            if (ks) {
-                storeFile file(ks)
-                storePassword System.getenv('KELIMEAVI_KEYSTORE_PASSWORD')
-                keyAlias System.getenv('KELIMEAVI_KEY_ALIAS')
-                keyPassword System.getenv('KELIMEAVI_KEY_PASSWORD')
+        if (hasTest) {
+            test {
+                storeFile file(testProps.getProperty('storeFile'))
+                storePassword testProps.getProperty('storePassword')
+                keyAlias testProps.getProperty('keyAlias')
+                keyPassword testProps.getProperty('keyPassword')
             }
         }
     }
@@ -52,10 +69,10 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig System.getenv('KELIMEAVI_KEYSTORE') ? signingConfigs.upload : signingConfigs.test
+            signingConfig hasUpload ? signingConfigs.upload : (hasTest ? signingConfigs.test : signingConfigs.debug)
         }
         debug {
-            signingConfig signingConfigs.test
+            if (hasTest) signingConfig signingConfigs.test
         }
     }
 

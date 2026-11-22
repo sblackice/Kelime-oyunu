@@ -1,0 +1,11 @@
+# Google Play'e yüklenecek sürümü imzalamak için:
+# 1) Bu dosyanın bir kopyasını aynı klasörde "imza.properties" adıyla oluştur.
+# 2) Aşağıdaki 4 satırı kendi anahtarının bilgileriyle doldur.
+# imza.properties dosyası .gitignore ile korunur: GitHub'a ve ZIP'e gitmez. Kimseyle paylaşma.
+# Anahtar dosyasını (.jks) ve parolalarını ayrıca güvenli bir yere yedekle: kaybolursa uygulamayı güncelleyemezsin.
+
+# Anahtar dosyasının yolu (android/ klasörüne göre ya da tam yol)
+storeFile=../../gizli/kelime-avi-yayin.jks
+storePassword=BURAYA_ANAHTAR_DEPOSU_PAROLASI
+keyAlias=kelimeavi
+keyPassword=BURAYA_ANAHTAR_PAROLASI
